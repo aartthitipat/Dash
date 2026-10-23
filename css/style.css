@@ -50,12 +50,18 @@ h1, h2, h3 {
 .app-date { color: var(--muted); font-size: 0.9375rem; }
 
 /* ---------- grid ---------- */
-/* DOM order = balance, slip, chart, tasks (ลำดับมือถือ) */
+/* มือถือ: คอลัมน์ห่อด้วย display:contents แล้วเรียงด้วย order = balance, slip, chart, tasks */
 .dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
+
+.col { display: contents; }
+.panel--balance { order: 1; }
+.panel--slip    { order: 2; }
+.panel--chart   { order: 3; }
+.panel--tasks   { order: 4; }
 
 @media (min-width: 768px) {
   .app { padding: var(--space-8) var(--space-8) var(--space-16); }
@@ -63,17 +69,19 @@ h1, h2, h3 {
 }
 
 @media (min-width: 1024px) {
+  /* สองคอลัมน์อิสระ 7/5 — ไม่แชร์ความสูงแถว จึงไม่มีช่องว่างใต้แผงที่เตี้ยกว่า */
   .dashboard {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-areas:
-      "balance balance balance balance balance balance balance slip slip slip slip slip"
-      "chart   chart   chart   chart   chart   chart   chart   tasks tasks tasks tasks tasks";
     align-items: start;
   }
-  .panel--balance { grid-area: balance; }
-  .panel--slip    { grid-area: slip; }
-  .panel--chart   { grid-area: chart; }
-  .panel--tasks   { grid-area: tasks; }
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+  .col--main { grid-column: 1 / span 7; }
+  .col--side { grid-column: 8 / span 5; }
 }
 
 /* ---------- panel ---------- */
@@ -162,7 +170,7 @@ h1, h2, h3 {
   min-height: 44px;
   width: 100%;
   padding: 0 var(--space-3);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-control);
   background: var(--surface);
   color: var(--ink);

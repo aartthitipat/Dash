@@ -33,7 +33,7 @@
   gap: var(--space-1);
   min-height: 176px;
   padding: var(--space-6) var(--space-4);
-  border: 1.5px dashed var(--line);
+  border: 1.5px dashed var(--line-strong);
   border-radius: var(--radius-control);
   color: var(--ink);
   text-align: center;

@@ -42,25 +42,29 @@
     </header>
 
     <main class="dashboard">
+      <div class="col col--main">
       <section class="panel panel--balance" id="balance" aria-labelledby="balance-title">
         <h2 class="panel__title" id="balance-title">ยอดเงินปัจจุบัน</h2>
         <div id="balance-root"></div>
-      </section>
-
-      <section class="panel panel--slip" id="slip" aria-labelledby="slip-title">
-        <h2 class="panel__title" id="slip-title">อ่านสลิป</h2>
-        <div id="slip-root"></div>
       </section>
 
       <section class="panel panel--chart" id="chart" aria-labelledby="chart-title">
         <h2 class="panel__title" id="chart-title">รายรับและรายจ่าย 7 วัน</h2>
         <div id="chart-root"></div>
       </section>
+      </div>
+
+      <div class="col col--side">
+      <section class="panel panel--slip" id="slip" aria-labelledby="slip-title">
+        <h2 class="panel__title" id="slip-title">อ่านสลิป</h2>
+        <div id="slip-root"></div>
+      </section>
 
       <section class="panel panel--tasks" id="tasks" aria-labelledby="tasks-title">
         <h2 class="panel__title" id="tasks-title">งานวันนี้</h2>
         <div id="tasks-root"></div>
       </section>
+      </div>
     </main>
   </div>
 

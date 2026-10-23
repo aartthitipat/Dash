@@ -9,6 +9,7 @@
   --ink: #17201D;
   --muted: #5E6B66;
   --line: #D7DEDB;
+  --line-strong: #818C87;
   --accent: #0F7A5C;
   --expense: #B24A5E;
   --on-accent: #FAFBFA;
@@ -52,6 +53,7 @@
   --ink: #E6ECE9;
   --muted: #8E9A95;
   --line: #2A312E;
+  --line-strong: #66726D;
   --accent: #3FB68B;
   --expense: #D8758A;
   --on-accent: #121514;
@@ -67,6 +69,7 @@
     --ink: #E6ECE9;
     --muted: #8E9A95;
     --line: #2A312E;
+    --line-strong: #66726D;
     --accent: #3FB68B;
     --expense: #D8758A;
     --on-accent: #121514;
