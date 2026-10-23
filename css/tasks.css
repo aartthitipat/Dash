@@ -1,1 +1,252 @@
 /* tasks component styles */
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.tasks [hidden] { display: none !important; }
+
+/* ---------- notice (localStorage ใช้ไม่ได้) ---------- */
+.tasks__notice {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* ---------- progress ---------- */
+.tasks__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tasks__count {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.tasks__count .num { color: var(--ink); }
+
+.tasks__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.tasks__bar-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease), background-color var(--dur) var(--ease);
+}
+
+/* ---------- form ---------- */
+.tasks__form-row {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tasks__input { flex: 1 1 auto; min-width: 0; }
+.tasks__add { flex: 0 0 auto; white-space: nowrap; }
+
+.tasks__input[aria-invalid="true"] { border-color: var(--expense); }
+
+/* ---------- all-done ---------- */
+.tasks__status {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+/* ---------- list ---------- */
+.tasks__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  border-bottom: 1px solid var(--line);
+  transition: border-color var(--dur) var(--ease);
+}
+
+.task:last-child { border-bottom: 0; }
+
+.task__check {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.task__box {
+  position: relative;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+}
+
+.task__cb {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 1.5px solid var(--muted);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.task__cb:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.task__cb:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.task__tick {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  color: var(--on-accent);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
+}
+
+.task__cb:checked + .task__tick {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.task__text {
+  position: relative;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  transition: color var(--dur) var(--ease);
+}
+
+/* เส้นขีดฆ่าวาดด้วย transform (อยู่ที่บรรทัดแรกของข้อความ) */
+.task__text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.75em;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.task.is-done .task__text { color: var(--muted); }
+.task.is-done .task__text::after { transform: scaleX(1); }
+
+/* ข้อความหลายบรรทัด: เส้นเดียวขีดได้แค่บรรทัดแรก จึงใช้ line-through (เฟดสีเข้า) แทน */
+.task.is-multiline .task__text::after { display: none; }
+.task.is-multiline .task__text {
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: transparent;
+  transition: color var(--dur) var(--ease), text-decoration-color var(--dur) var(--ease);
+}
+.task.is-multiline.is-done .task__text { text-decoration-color: currentColor; }
+
+.task__del {
+  flex: 0 0 auto;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+.task__del:hover { color: var(--expense); }
+
+/* ---------- motion ---------- */
+@keyframes task-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes task-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateX(12px) scale(0.98); }
+}
+
+.task.is-entering { animation: task-in var(--dur) var(--ease) both; }
+.task.is-leaving  { animation: task-out var(--dur) var(--ease) both; pointer-events: none; }
+
+/* ---------- empty ---------- */
+.tasks__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9375rem;
+}
+
+.tasks__empty-icon { color: var(--muted); }
+
+/* ---------- clear done ---------- */
+.tasks__clear {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  margin-left: calc(var(--space-2) * -1);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.tasks__clear:hover { color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tasks__bar-fill { transition: background-color var(--dur) var(--ease); }
+  .task__tick { transition: opacity var(--dur-fast) var(--ease); transform: none; }
+  .task__cb:checked + .task__tick { transform: none; }
+  .task__text::after { transition: none; }
+  .task.is-entering,
+  .task.is-leaving { animation: none; }
+}

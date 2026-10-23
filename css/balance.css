@@ -1,1 +1,156 @@
-/* balance component styles */
+/* balance component styles — ยอดเงิน (ไม่มีกล่อง), ฟอร์ม, ประวัติ 5 รายการ */
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* ---------- figure ---------- */
+.balance__figure {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  transition: color var(--dur) var(--ease);
+}
+
+.balance__figure.is-negative { color: var(--expense); }
+
+.balance__notice {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* ---------- form ---------- */
+.balance__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-3);
+  max-width: 560px;
+}
+
+.balance__field {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.balance__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex: 0 1 auto;
+}
+
+/* ปุ่มอยู่แนวเดียวกับช่องกรอก (ข้าม label + gap) */
+@media (min-width: 480px) {
+  .balance__actions {
+    margin-top: calc(0.9375rem * 1.6 + var(--space-2));
+  }
+}
+
+@media (max-width: 479.98px) {
+  .balance__actions { flex: 1 1 100%; }
+  .balance__actions .btn { flex: 1 1 0; }
+}
+
+.balance__status {
+  color: var(--accent);
+  font-size: 0.875rem;
+  min-height: 0;
+}
+
+.balance__status:empty { display: none; }
+
+.balance__input[aria-invalid="true"] { border-color: var(--expense); }
+
+/* ---------- history ---------- */
+.balance-hist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 560px;
+}
+
+.balance-hist__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.balance-hist__list {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.balance-hist__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+
+.balance-hist__row.is-entering {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.balance-hist__row.is-leaving {
+  opacity: 0;
+  transform: translateX(12px) scaleY(0.9);
+  transition-duration: var(--dur-fast);
+}
+
+.balance-hist__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.balance-hist__amount {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.balance-hist__row.is-income .balance-hist__amount { color: var(--accent); }
+.balance-hist__row.is-expense .balance-hist__amount { color: var(--expense); }
+
+.balance-hist__meta {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.balance-hist__del {
+  flex: none;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+.balance-hist__del:hover { color: var(--expense); border-color: var(--line); }
+
+.balance-hist__empty {
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.balance [hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .balance-hist__row,
+  .balance-hist__row.is-leaving { transition: none; }
+}
