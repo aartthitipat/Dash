@@ -1,1 +1,304 @@
-/* slip component styles */
+/* slip component styles — dropzone, พรีวิว, สถานะ OCR, ผลลัพธ์, ปุ่มยืนยัน */
+
+.slip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.slip [hidden] { display: none !important; }
+
+/* ---------- dropzone ---------- */
+/* input ซ่อนแบบยังโฟกัสได้ (ไม่ใช้ display:none) */
+.slip__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.slip__zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 176px;
+  padding: var(--space-6) var(--space-4);
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.slip__zone:hover { border-color: var(--muted); }
+
+.slip__zone:has(.slip__file:focus-visible) {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@supports not selector(:has(*)) {
+  .slip__zone:focus-within {
+    border-color: var(--accent);
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.slip.is-dragover .slip__zone { border-color: var(--accent); }
+
+.slip__zone-icon {
+  margin-bottom: var(--space-2);
+  color: var(--muted);
+  transition: transform var(--dur) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.slip.is-dragover .slip__zone-icon,
+.slip__zone:hover .slip__zone-icon {
+  color: var(--accent);
+}
+
+.slip.is-dragover .slip__zone-icon { transform: translateY(-3px); }
+
+.slip__zone-title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.slip__zone-sub {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.slip__zone-meta {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.slip__hint {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* ---------- work area ---------- */
+.slip__work {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.slip__preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.slip.is-dragover .slip__preview { border-color: var(--accent); }
+
+.slip__thumb {
+  flex: none;
+  width: 56px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius-control) - 4px);
+  background: var(--bg);
+}
+
+.slip__meta {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.slip__name {
+  font-size: 0.9375rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slip__size {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.slip__change {
+  flex: none;
+  margin-left: auto;
+}
+
+/* ---------- status + progress ---------- */
+.slip__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: 0.9375rem;
+}
+
+.slip__status-text:empty { display: none; }
+
+.slip__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.slip__dot.is-running {
+  background: var(--accent);
+  animation: slip-pulse calc(var(--dur-slow) * 2) var(--ease) infinite;
+}
+
+.slip__dot.is-done { background: var(--accent); }
+.slip__dot.is-error { background: var(--expense); }
+
+@keyframes slip-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+.slip__progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.slip__bar {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur) var(--ease);
+}
+
+/* ---------- skeleton (ระหว่าง OCR) ---------- */
+.slip__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.slip__sk {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--line);
+}
+
+.slip__sk--label { width: 45%; height: 14px; border-radius: 4px; }
+.slip__sk--field { height: 44px; }
+.slip__sk--chips { width: 60%; height: 32px; }
+
+/* แถบทึบเลื่อนผ่าน (ไม่ใช้ gradient) */
+.slip__sk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--surface);
+  opacity: 0.45;
+  transform: translateX(-100%);
+  animation: slip-shimmer calc(var(--dur-slow) * 3) var(--ease) infinite;
+}
+
+@keyframes slip-shimmer {
+  to { transform: translateX(250%); }
+}
+
+/* ---------- result ---------- */
+.slip__result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.slip__amount { font-size: 1.25rem; }
+.slip__amount[aria-invalid="true"] { border-color: var(--expense); }
+
+.slip__alert {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--expense);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.slip__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.slip__chip {
+  max-width: 100%;
+  padding: 0 var(--space-3);
+  font-family: var(--font-thai);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.slip__retry { align-self: flex-start; }
+
+/* ---------- actions ---------- */
+.slip__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.slip__actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.slip__sign {
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  line-height: 1;
+}
+
+.slip__btn--expense .slip__sign { color: var(--expense); }
+
+/* ---------- success ---------- */
+.slip__done {
+  color: var(--accent);
+  font-size: 0.875rem;
+}
+
+.slip__done:empty { display: none; }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .slip__dot.is-running { animation: none; }
+  .slip__sk::after { animation: none; display: none; }
+  .slip__bar { transition: none; }
+  .slip__zone-icon { transition: color var(--dur-fast) var(--ease); }
+  .slip.is-dragover .slip__zone-icon { transform: none; }
+}
