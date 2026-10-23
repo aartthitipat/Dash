@@ -31,64 +31,15 @@ h1, h2, h3 {
 }
 
 /* ---------- shell ---------- */
-.app {
-  max-width: 1400px;
-  min-height: 100dvh;
-  margin-inline: auto;
-  padding: var(--space-6) var(--space-4) var(--space-12);
-}
+/* โครงหน้า (rail / ส่วนหัว / หน้า / ลิ้นชัก) อยู่ใน css/shell.css */
+.app-date { color: var(--muted); font-size: 0.875rem; }
 
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-}
-
-.app-title { font-size: clamp(1.375rem, 3vw, 1.75rem); }
-.app-date { color: var(--muted); font-size: 0.9375rem; }
-
-/* ---------- grid ---------- */
-/* มือถือ: คอลัมน์ห่อด้วย display:contents แล้วเรียงด้วย order = balance, slip, chart, tasks */
-.dashboard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
-}
-
-.col { display: contents; }
-.panel--balance { order: 1; }
-.panel--slip    { order: 2; }
-.panel--chart   { order: 3; }
-.panel--tasks   { order: 4; }
-
-@media (min-width: 768px) {
-  .app { padding: var(--space-8) var(--space-8) var(--space-16); }
-  .dashboard { gap: var(--space-6); }
-}
-
-@media (min-width: 1024px) {
-  /* สองคอลัมน์อิสระ 7/5 — ไม่แชร์ความสูงแถว จึงไม่มีช่องว่างใต้แผงที่เตี้ยกว่า */
-  .dashboard {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    align-items: start;
-  }
-  .col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    min-width: 0;
-  }
-  .col--main { grid-column: 1 / span 7; }
-  .col--side { grid-column: 8 / span 5; }
-}
-
-/* ---------- panel ---------- */
+/* ---------- panel (การ์ด) ---------- */
+/* การ์ด: รัศมี 12px, มืด = ไม่มีขอบ (--card-border โปร่งใส) + เงาฟุ้ง, สว่าง = ขอบ 1px --line */
 .panel {
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-panel);
   padding: var(--space-5);
   min-width: 0;
@@ -99,23 +50,15 @@ h1, h2, h3 {
   .panel { padding: var(--space-6); }
 }
 
-/* ยอดเงินหลักไม่ใส่กล่อง */
-.panel--balance {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  padding-inline: 0;
-}
-
 .panel__title {
-  font-size: 1.0625rem;
+  font-size: 0.9375rem;
   margin-bottom: var(--space-4);
 }
 
 /* ---------- focus ---------- */
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -184,22 +127,22 @@ h1, h2, h3 {
 .theme-toggle[aria-pressed="true"] .icon--sun { display: block; }
 .theme-toggle[aria-pressed="true"] .icon--moon { display: none; }
 
-/* ---------- load stagger (ครั้งเดียว) ---------- */
+/* ---------- load stagger (ครั้งเดียวตอนโหลด — router.js ถอด data-boot เมื่อเปลี่ยนหน้าครั้งแรก) ---------- */
 @keyframes panel-in {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: none; }
 }
 
-.panel {
+.pages[data-boot] .panel {
   animation: panel-in var(--dur-slow) var(--ease) both;
 }
-.panel--balance { animation-delay: 0ms; }
-.panel--slip    { animation-delay: 60ms; }
-.panel--chart   { animation-delay: 120ms; }
-.panel--tasks   { animation-delay: 180ms; }
+.pages[data-boot] .panel:nth-child(2) { animation-delay: 40ms; }
+.pages[data-boot] .panel:nth-child(3) { animation-delay: 80ms; }
+.pages[data-boot] .panel:nth-child(4) { animation-delay: 120ms; }
+.pages[data-boot] .panel:nth-child(n+5) { animation-delay: 160ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel { animation: none; }
+  .pages[data-boot] .panel { animation: none; }
   .btn:active,
   .icon-btn:active { transform: none; }
   .btn, .icon-btn { transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease); }

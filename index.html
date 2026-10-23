@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>การเงินและกิจวัตร</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ภาพรวม · การเงินและกิจวัตร</title>
   <script>
     /* ตั้งธีมก่อนวาดหน้า กันจอกะพริบ */
     (function () {
@@ -23,16 +23,59 @@
   <link rel="stylesheet" href="css/slip.css">
   <link rel="stylesheet" href="css/tasks.css">
   <link rel="stylesheet" href="css/cloud.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <!-- Phase B: ใส่ css ของ kpi/charts/txlist ต่อจากบรรทัดนี้ -->
 </head>
 <body>
-  <div class="app">
-    <header class="app-header">
-      <div class="app-header__titles">
-        <h1 class="app-title">การเงินและกิจวัตร</h1>
+  <div class="shell">
+    <!-- เมนูหลัก: ≥1024 rail 84px, 768–1023 rail แคบ, <768 แถบแท็บล่าง (ใช้ nav ตัวเดียวกัน) -->
+    <nav class="rail" aria-label="เมนูหลัก">
+      <ul class="rail__list">
+        <li>
+          <a class="rail__link" href="#/" data-route="overview" aria-label="ภาพรวม">
+            <svg class="rail__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>
+            </svg>
+            <span class="rail__label" aria-hidden="true">ภาพรวม</span>
+          </a>
+        </li>
+        <li>
+          <a class="rail__link" href="#/tx" data-route="tx" aria-label="รายการ">
+            <svg class="rail__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>
+            </svg>
+            <span class="rail__label" aria-hidden="true">รายการ</span>
+          </a>
+        </li>
+        <li>
+          <a class="rail__link" href="#/tasks" data-route="tasks" aria-label="กิจวัตร">
+            <svg class="rail__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8.5 11.5l3 3 8-8"/><path d="M20 12.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>
+            </svg>
+            <span class="rail__label" aria-hidden="true">กิจวัตร</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <header class="topbar">
+      <div class="topbar__titles">
+        <h1 class="topbar__title" id="page-title" tabindex="-1">ภาพรวม</h1>
         <p class="app-date" id="today-date"></p>
       </div>
-      <div class="cloud-auth" id="cloud-auth"></div>
-      <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="สลับเป็นโหมดมืด" aria-pressed="false">
+      <div class="topbar__actions">
+        <button type="button" class="btn btn--primary topbar__slip" id="open-slip" aria-haspopup="dialog" aria-controls="slip-drawer">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>
+          </svg>
+          <span>อ่านสลิป</span>
+        </button>
+        <div class="cloud-auth" id="cloud-auth"></div>
+      </div>
+    </header>
+
+    <!-- ปุ่มธีมตัวเดียว: มือถืออยู่มุมขวาบนของส่วนหัว, ≥768 ย้ายไปล่างสุดของ rail ด้วย CSS -->
+    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="สลับเป็นโหมดมืด" aria-pressed="false">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>
         </svg>
@@ -41,43 +84,124 @@
           <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
         </svg>
       </button>
-    </header>
 
-    <main class="dashboard">
-      <div class="col col--main">
-      <section class="panel panel--balance" id="balance" aria-labelledby="balance-title">
-        <h2 class="panel__title" id="balance-title">ยอดเงินปัจจุบัน</h2>
-        <div id="balance-root"></div>
+    <main class="pages" id="main" data-boot>
+      <!-- ภาพรวม: กริด 4 คอลัมน์ (§9.3) — ช่องว่างรอ Phase B เติม; id อยู่ที่การ์ด เนื้อหาใส่ใน .slot__body -->
+      <section class="page page--overview" data-page="overview" aria-label="ภาพรวม">
+        <div class="ov-grid">
+          <article class="panel slot slot--kpi" id="kpi-balance" aria-labelledby="kpi-balance-title">
+            <h2 class="panel__title slot__title" id="kpi-balance-title">ยอดเงินปัจจุบัน</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กำลังเตรียมข้อมูลยอดเงิน</p>
+          </article>
+          <article class="panel slot slot--kpi" id="kpi-income" aria-labelledby="kpi-income-title">
+            <h2 class="panel__title slot__title" id="kpi-income-title">รายรับเดือนนี้</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กำลังเตรียมข้อมูลรายรับ</p>
+          </article>
+          <article class="panel slot slot--kpi" id="kpi-expense" aria-labelledby="kpi-expense-title">
+            <h2 class="panel__title slot__title" id="kpi-expense-title">รายจ่ายเดือนนี้</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กำลังเตรียมข้อมูลรายจ่าย</p>
+          </article>
+          <article class="panel slot slot--kpi" id="kpi-tasks" aria-labelledby="kpi-tasks-title">
+            <h2 class="panel__title slot__title" id="kpi-tasks-title">งานวันนี้</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กำลังเตรียมข้อมูลงาน</p>
+          </article>
+
+          <article class="panel slot slot--chart slot--bar" id="charts-bar" aria-labelledby="charts-bar-title">
+            <h2 class="panel__title slot__title" id="charts-bar-title">รายรับและรายจ่าย 7 วัน</h2>
+            <!-- ชั่วคราว: กราฟเดิม (js/chart.js) จนกว่า Phase B จะแทนที่และลบ #chart-root -->
+            <div class="slot__body"><div id="chart-root"></div></div>
+            <p class="slot__placeholder">ยังไม่มีกราฟ</p>
+          </article>
+          <article class="panel slot slot--chart slot--hbar" id="charts-hbar" aria-labelledby="charts-hbar-title">
+            <h2 class="panel__title slot__title" id="charts-hbar-title">รายจ่ายตามหมวด</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กราฟรายจ่ายตามหมวดจะแสดงที่นี่</p>
+          </article>
+          <article class="panel slot slot--chart slot--donut" id="charts-donut" aria-labelledby="charts-donut-title">
+            <h2 class="panel__title slot__title" id="charts-donut-title">รายรับตามหมวด</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กราฟรายรับตามหมวดจะแสดงที่นี่</p>
+          </article>
+          <article class="panel slot slot--chart slot--area" id="charts-area" aria-labelledby="charts-area-title">
+            <h2 class="panel__title slot__title" id="charts-area-title">การเปลี่ยนแปลงสุทธิสะสม</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">กราฟการเปลี่ยนแปลงสุทธิจะแสดงที่นี่</p>
+          </article>
+          <article class="panel slot slot--recent" id="recent-root" aria-labelledby="recent-title">
+            <h2 class="panel__title slot__title" id="recent-title">รายการล่าสุด</h2>
+            <div class="slot__body"></div>
+            <p class="slot__placeholder">รายการล่าสุดจะแสดงที่นี่</p>
+          </article>
+        </div>
       </section>
 
-      <section class="panel panel--chart" id="chart" aria-labelledby="chart-title">
-        <h2 class="panel__title" id="chart-title">รายรับและรายจ่าย 7 วัน</h2>
-        <div id="chart-root"></div>
-      </section>
-      </div>
-
-      <div class="col col--side">
-      <section class="panel panel--slip" id="slip" aria-labelledby="slip-title">
-        <h2 class="panel__title" id="slip-title">อ่านสลิป</h2>
-        <div id="slip-root"></div>
+      <!-- รายการ: Phase B (B3) จะปรับโครงเป็นรายการทั้งหมด + ตัวกรอง -->
+      <section class="page page--tx" data-page="tx" aria-label="รายการ" hidden>
+        <div class="page__stack">
+          <section class="panel panel--balance" id="balance" aria-labelledby="balance-title">
+            <h2 class="panel__title" id="balance-title">ยอดเงินปัจจุบัน</h2>
+            <div id="balance-root"></div>
+          </section>
+        </div>
       </section>
 
-      <section class="panel panel--tasks" id="tasks" aria-labelledby="tasks-title">
-        <h2 class="panel__title" id="tasks-title">งานวันนี้</h2>
-        <div id="tasks-root"></div>
+      <section class="page page--tasks" data-page="tasks" aria-label="กิจวัตร" hidden>
+        <div class="page__stack">
+          <section class="panel panel--tasks" id="tasks" aria-labelledby="tasks-title">
+            <h2 class="panel__title" id="tasks-title">งานวันนี้</h2>
+            <div id="tasks-root"></div>
+          </section>
+        </div>
       </section>
-      </div>
     </main>
   </div>
+
+  <!-- ลิ้นชักอ่านสลิป: ขวา (≥768) / ล่าง (<768) -->
+  <dialog class="sheet sheet--drawer" id="slip-drawer" aria-labelledby="slip-title">
+    <div class="sheet__inner">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="slip-title">อ่านสลิป</h2>
+        <button type="button" class="icon-btn sheet__close" data-close aria-label="ปิดหน้าต่างอ่านสลิป">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="sheet__body">
+        <div id="slip-root"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ปรับยอดเงิน: Phase B เติมฟอร์มใน #adjust-root -->
+  <dialog class="sheet sheet--modal" id="adjust-dialog" aria-labelledby="adjust-title">
+    <div class="sheet__inner">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="adjust-title">ปรับยอดเงิน</h2>
+        <button type="button" class="icon-btn sheet__close" data-close aria-label="ปิดหน้าต่างปรับยอดเงิน">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="sheet__body">
+        <div id="adjust-root"></div>
+        <p class="slot__placeholder">ฟอร์มปรับยอดเงินจะแสดงที่นี่</p>
+      </div>
+    </div>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js" integrity="sha384-sZlPHqJ8Pk1GMyFXfg9vOgDjyUZZe7wE2c0NoPg2z1vs2fmI4wOC0O1ONVyr73qa" crossorigin="anonymous"></script>
   <script src="js/store.js"></script>
+  <script src="js/categories.js"></script>
   <script src="js/theme.js"></script>
+  <script src="js/router.js"></script>
   <script src="js/balance.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/slip.js"></script>
   <script src="js/tasks.js"></script>
+  <!-- Phase B: ใส่ js/kpi.js, js/charts.js, js/txlist.js ตรงนี้ (main.js เรียก FM.kpi/charts/txlist.init ให้ถ้ามี) -->
   <script src="js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js" integrity="sha384-KX6Y/AMIv9qA8TLCDul2JatZWeyrJVgj3Xu/0r30Nr05xO8md1+wHAgtdsRV9LoE" crossorigin="anonymous"></script>
   <script src="js/cloud.js"></script>

@@ -152,7 +152,7 @@
 }
 
 .cloud-dialog__success {
-  color: var(--accent);
+  color: var(--sky);
   font-size: 0.9375rem;
   overflow-wrap: anywhere;
 }

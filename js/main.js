@@ -1,4 +1,5 @@
-/* main.js — จุดเริ่มระบบ: ตั้งวันที่, เรียก init ของแต่ละโมดูล */
+/* main.js — จุดเริ่มระบบ: ตั้งวันที่, router, เรียก init ของแต่ละโมดูล
+ * โมดูลที่ยังไม่มี (kpi/charts/txlist ของ Phase B) ถูกข้ามอัตโนมัติ */
 (function () {
   'use strict';
 
@@ -18,7 +19,15 @@
   function start() {
     setDate();
     if (FM.theme && FM.theme.init) FM.theme.init();
-    ['balance', 'chart', 'slip', 'tasks'].forEach(function (name) {
+    // router ก่อนโมดูลอื่น: ตั้งหน้าที่แสดงตาม hash ก่อนโมดูลวาด
+    if (FM.router && FM.router.init) {
+      try {
+        FM.router.init();
+      } catch (e) {
+        if (window.console) console.error(e);
+      }
+    }
+    ['balance', 'chart', 'slip', 'tasks', 'kpi', 'charts', 'txlist'].forEach(function (name) {
       var mod = FM[name];
       if (mod && typeof mod.init === 'function') {
         try {

@@ -1,6 +1,9 @@
-index.html — โครง DOM + ลำดับโหลดสคริปต์/CDN
-css/tokens.css — design tokens สว่าง/มืด (แก้สี/ระยะ/motion ที่นี่)
-css/style.css — layout และ component ทั้งหมด
+index.html — โครง DOM (shell: rail, ส่วนหัว, หน้า data-page, dialog สลิป/ปรับยอด, ช่องว่างกริดภาพรวม) + ลำดับโหลดสคริปต์/CDN
+css/tokens.css — design tokens สว่าง(ฟ้า-ขาว)/มืด(navy) v2 + alias ชื่อเดิม (แก้สี/ระยะ/motion ที่นี่)
+css/style.css — reset, การ์ด .panel, ปุ่ม, ช่องกรอก, focus, ปุ่มธีม
+css/shell.css — rail/แถบแท็บล่าง, ส่วนหัวของหน้า, หน้า+transition, กริดภาพรวม (slot), ลิ้นชัก/กล่องโต้ตอบ, แสงพื้นหลัง
+js/router.js — hash routing #/ #/tx #/tasks (FM.router) + เปิด/ปิดลิ้นชักสลิป/กล่องปรับยอด (FM.ui)
+js/categories.js — หมวดหมู่รายรับ/รายจ่าย (FM.cats) ข้อมูลล้วน
 js/store.js — localStorage + pub/sub (`FM.on/emit`)
 js/theme.js — สลับธีม
 js/balance.js — การ์ดยอดเงิน

@@ -1,22 +1,38 @@
-/* Design tokens — แก้สี/ระยะ/motion ที่นี่เท่านั้น */
+/* Design tokens — แก้สี/ระยะ/motion ที่นี่เท่านั้น
+ * ชุดสี v2 (docs/REDESIGN-PLAN.md §9.2): น้ำเงินเข้ม + ฟ้าอ่อน, มืด = navy, สว่าง = ฟ้า-ขาว
+ * ค่าที่ปรับจากร่างหลังวัด contrast จริง: --line-strong มืด #4A5F8C→#516793 (2.73→3.07:1),
+ * --sky สว่าง #0B6FB8→#0A6EB6 (บน surface-2 4.50→4.57:1), --up สว่าง #0E8F5B→#0D8757 (บน surface 4.12→4.55:1)
+ * ชื่อเดิม (--accent, --on-accent, --expense) เป็น alias ชั่วคราวจนกว่าโมดูลจะย้ายครบ */
 
 :root {
   color-scheme: light;
 
-  /* สี (โหมดสว่าง) */
-  --bg: #EEF1F0;
-  --surface: #FAFBFA;
-  --ink: #17201D;
-  --muted: #5E6B66;
-  --line: #D7DEDB;
-  --line-strong: #818C87;
-  --accent: #0F7A5C;
-  --expense: #B24A5E;
-  --on-accent: #FAFBFA;
+  /* สี (โหมดสว่าง ฟ้า-ขาว) */
+  --bg: #EEF6FF;
+  --surface: #FFFFFF;
+  --surface-2: #E3EEFC;
+  --ink: #0B1B3A;
+  --muted: #4A5F85;
+  --line: #D3E1F5;
+  --line-strong: #6F86AD;
+  --blue: #1E4FD6;
+  --sky: #0A6EB6;
+  --sky-tint: #BFE3FF;
+  --on-blue: #FFFFFF;
+  --up: #0D8757;
+  --down: #C8374D;
+  --focus: var(--blue);
+  --card-border: var(--line);
+  --glow: var(--surface);
+
+  /* alias ของชื่อเดิม (โมดูลเก่ายังใช้อยู่) */
+  --accent: var(--blue);
+  --on-accent: var(--on-blue);
+  --expense: var(--down);
 
   /* เงาบางย้อมสีพื้น */
-  --shadow-tint: 23 32 29;
-  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.04), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.10);
+  --shadow-tint: 30 58 110;
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.06), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.16);
 
   /* ระยะ (สเกล 4px) */
   --space-1: 4px;
@@ -33,6 +49,12 @@
   /* รัศมี */
   --radius-panel: 20px;
   --radius-control: 12px;
+  --radius-card: 12px;
+
+  /* โครงหน้า */
+  --rail-w: 84px;
+  --rail-w-narrow: 72px;
+  --tabbar-h: 64px;
 
   /* ฟอนต์ */
   --font-ui: "Outfit", "Noto Sans Thai", system-ui, sans-serif;
@@ -42,38 +64,53 @@
   /* motion */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 150ms;
+  --dur-page: 180ms;
   --dur: 250ms;
   --dur-slow: 500ms;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121514;
-  --surface: #1A1E1C;
-  --ink: #E6ECE9;
-  --muted: #8E9A95;
-  --line: #2A312E;
-  --line-strong: #66726D;
-  --accent: #3FB68B;
-  --expense: #D8758A;
-  --on-accent: #121514;
-  --shadow-tint: 6 9 8;
-  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.30), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.55);
+  --bg: #060B16;
+  --surface: #0F1A30;
+  --surface-2: #16233F;
+  --ink: #E8F0FF;
+  --muted: #8FA3C8;
+  --line: #1E2D4D;
+  --line-strong: #516793;
+  --blue: #2F5BE0;
+  --sky: #8FD3FF;
+  --sky-tint: rgb(143 211 255 / 0.14);
+  --on-blue: #FFFFFF;
+  --up: #3DDC97;
+  --down: #FF5C70;
+  --focus: var(--sky);
+  --card-border: transparent;
+  --glow: var(--surface);
+  --shadow-tint: 1 4 12;
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.40), 0 16px 40px -16px rgb(var(--shadow-tint) / 0.70);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #121514;
-    --surface: #1A1E1C;
-    --ink: #E6ECE9;
-    --muted: #8E9A95;
-    --line: #2A312E;
-    --line-strong: #66726D;
-    --accent: #3FB68B;
-    --expense: #D8758A;
-    --on-accent: #121514;
-    --shadow-tint: 6 9 8;
-    --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.30), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.55);
+    --bg: #060B16;
+    --surface: #0F1A30;
+    --surface-2: #16233F;
+    --ink: #E8F0FF;
+    --muted: #8FA3C8;
+    --line: #1E2D4D;
+    --line-strong: #516793;
+    --blue: #2F5BE0;
+    --sky: #8FD3FF;
+    --sky-tint: rgb(143 211 255 / 0.14);
+    --on-blue: #FFFFFF;
+    --up: #3DDC97;
+    --down: #FF5C70;
+    --focus: var(--sky);
+    --card-border: transparent;
+    --glow: var(--surface);
+    --shadow-tint: 1 4 12;
+    --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.40), 0 16px 40px -16px rgb(var(--shadow-tint) / 0.70);
   }
 }

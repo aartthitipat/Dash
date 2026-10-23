@@ -43,6 +43,7 @@ Status: DRAFT รออนุมัติจากผู้ใช้
 5. **OCR parser**: หาตัวเลขรูปแบบเงิน (`1,234.50`) ใกล้คำว่า จำนวน/จำนวนเงิน/Amount/THB/บาท; ไม่เจอ → ช่องว่างให้กรอกเอง ไม่เดาค่า
 
 ## 6. Design contract (ใช้ skills: design-taste-frontend-v1, frontend-ui-engineering, frontend-design, improve-animations)
+> **แทนที่แล้ว:** design contract ปัจจุบันคือ `docs/REDESIGN-PLAN.md` §9 "DESIGN CONTRACT v2" (หลายหน้า hash routing, rail/แถบแท็บล่าง, กริดภาพรวม 4 คอลัมน์, ลิ้นชักสลิป, สีน้ำเงินเข้ม+ฟ้าอ่อน). เนื้อหาข้อ 6 ด้านล่างเป็นของรุ่นแรก (หน้าเดียว) เก็บไว้อ้างอิงเท่านั้น — ค่าสีจริงอยู่ใน `css/tokens.css`
 ปรับ dials: VARIANCE 8, MOTION 6, DENSITY 4 — แปลงกฎ React/Tailwind ของ skill เป็น vanilla CSS
 
 **แนวคิด:** "สมุดบัญชีดิจิทัล" — ตัวเลขเป็นพระเอก (Geist Mono ขนาดใหญ่) ที่เหลือเงียบ วางเป็น asymmetric 2 คอลัมน์ ไม่ใช่แถวการ์ด 3 ใบเท่ากัน

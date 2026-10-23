@@ -67,7 +67,7 @@
 
 .slip.is-dragover .slip__zone-icon,
 .slip__zone:hover .slip__zone-icon {
-  color: var(--accent);
+  color: var(--sky);
 }
 
 .slip.is-dragover .slip__zone-icon { transform: translateY(-3px); }
@@ -288,7 +288,7 @@
 
 /* ---------- success ---------- */
 .slip__done {
-  color: var(--accent);
+  color: var(--sky);
   font-size: 0.875rem;
 }
 

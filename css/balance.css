@@ -62,7 +62,7 @@
 }
 
 .balance__status {
-  color: var(--accent);
+  color: var(--sky);
   font-size: 0.875rem;
   min-height: 0;
 }
@@ -124,7 +124,7 @@
   color: var(--ink);
 }
 
-.balance-hist__row.is-income .balance-hist__amount { color: var(--accent); }
+.balance-hist__row.is-income .balance-hist__amount { color: var(--up); }
 .balance-hist__row.is-expense .balance-hist__amount { color: var(--expense); }
 
 .balance-hist__meta {
