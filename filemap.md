@@ -7,14 +7,14 @@ js/categories.js — หมวดหมู่รายรับ/รายจ่�
 js/store.js — localStorage + pub/sub (`FM.on/emit`)
 js/theme.js — สลับธีม
 js/balance.js — การ์ดยอดเงิน
-js/chart.js — กราฟ Chart.js
+js/charts.js — ชุดกราฟหน้าภาพรวม (แท่ง 7/30 วัน, แท่งนอนรายจ่ายตามหมวด, โดนัทรายรับตามหมวด, พื้นที่สุทธิสะสม) + รายการล่าสุด; ช่วงเวลาเก็บใน fm.chartRange, event 'chart:range' (FM.charts)
 js/slip.js — อ่านสลิป OCR
 js/tasks.js — งานประจำวัน
 js/main.js — จุดเริ่มระบบ
 docs/SPEC.md — สเปกและ design contract
 docs/PLAN.md — แผนงานแบ่ง task
 css/balance.css — สไตล์การ์ดยอดเงิน+ประวัติ
-css/chart.css — สไตล์กราฟ
+css/charts.css — สไตล์ชุดกราฟ, segmented control ช่วงเวลา, legend, ตารางซ่อนสำหรับ screen reader, รายการล่าสุด
 css/slip.css — สไตล์ระบบอ่านสลิป
 css/tasks.css — สไตล์งานประจำวัน
 js/config.js — ค่าเชื่อมต่อ Supabase (URL + คีย์ publishable สาธารณะ)

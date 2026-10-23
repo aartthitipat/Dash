@@ -94,6 +94,13 @@
     return n > 0 && n < AMOUNT_LIMIT ? n : null;
   }
 
+  /* หมวดหมู่: key ที่ถูกต้องสำหรับชนิดนั้น (FM.cats) หรือ null — ไม่มี/ไม่รู้จัก/ผิดชนิด → null
+   * (ไม่ทำให้ทั้งแถวไม่ถูกต้อง: tx เก่าที่ไม่มี category และแถวคลาวด์ที่ไม่มีคอลัมน์นี้ยังซิงก์ได้) */
+  function cleanCategory(type, key) {
+    if (typeof key !== 'string' || !FM.cats || typeof FM.cats.normalize !== 'function') return null;
+    return FM.cats.normalize(type, key);
+  }
+
   /* แถวรายการเงิน: คืนรูปแบบมาตรฐานของเครื่อง หรือ null ถ้าไม่ถูกต้อง */
   function cleanTx(t) {
     if (!t || typeof t !== 'object') return null;
@@ -104,7 +111,7 @@
     var amount = cleanAmount(t.amount);
     var ts = cleanTs(t.ts);
     if (amount === null || ts === null) return null;
-    return { id: id, type: t.type, amount: amount, ts: ts, source: t.source };
+    return { id: id, type: t.type, amount: amount, ts: ts, source: t.source, category: cleanCategory(t.type, t.category) };
   }
 
   function cleanTask(t) {
@@ -581,7 +588,7 @@
   function fullSync(forUid) {
     return Promise.all([
       q(client.from('balances').select('amount,updated_at').eq('user_id', forUid).maybeSingle()),
-      fetchAll('transactions', 'id,type,amount,ts,source', forUid),
+      fetchAll('transactions', 'id,type,amount,ts,source,category', forUid),
       fetchAll('tasks', 'id,text,done,ts', forUid)
     ]).then(function (r) {
       if (uid !== forUid) throw ABORT;

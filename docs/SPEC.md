@@ -29,7 +29,8 @@ Status: DRAFT รออนุมัติจากผู้ใช้
 
 ## 4. Data model (localStorage, prefix `fm.`)
 - `fm.balance`: number (ทศนิยม ≤ 2 ตำแหน่ง, ปัดด้วย `Math.round(x*100)/100`)
-- `fm.tx`: `[{id, type:"income"|"expense", amount, ts, source:"slip"|"manual"}]`
+- `fm.tx`: `[{id, type:"income"|"expense", amount, ts, source:"slip"|"manual", category}]` — `category` (ไม่บังคับ) = key จาก `FM.cats` (`js/categories.js`) ของชนิดนั้น หรือ `null`; tx เก่าที่ไม่มีฟิลด์นี้/ค่าไม่รู้จัก แสดงเป็น "ไม่ระบุ" (`FM.cats.label`). ผู้เขียน: สลิป (select หมวด 2 optgroup, "อื่นๆ" ใช้ได้ทั้งสองชนิด, หมวดผิดชนิด = แจ้ง error ไม่เปลี่ยนให้เอง), "บวกเพิ่ม" ในกล่องปรับยอด (หมวดรายรับ ค่าเริ่มต้น `other`)
+- `fm.txFilter`: `"all"|"income"|"expense"` ตัวกรองของหน้า `#/tx` (txlist.js)
 - `fm.tasks`: `[{id, text, done, ts}]`
 - `fm.theme`: `"light"|"dark"` (ไม่มี = ตามระบบ)
 - Event: `balance:changed`, `tx:changed`, `tasks:changed`, `theme:changed`
@@ -99,10 +100,10 @@ Panel: รัศมี 20px, เส้น 1px `--line`, เงาบางย้
 > ส่วนนี้แทนที่ "ไม่มี backend/บัญชีผู้ใช้/ซิงก์ข้ามเครื่อง" ใน Non-goals ข้อ 1
 - **ไฟล์:** `js/config.js` (`window.FM_CONFIG = {SUPABASE_URL, SUPABASE_KEY}` — คีย์ publishable สาธารณะเท่านั้น ห้าม service_role), `js/cloud.js`, `css/cloud.css`; ไลบรารี `@supabase/supabase-js@2.58.0` UMD จาก jsDelivr (SRI). ลำดับสคริปต์: โมดูลเดิม → `config.js` → supabase → `cloud.js` → `main.js` (เรียก `FM.cloud.init()` หลังโมดูลอื่น)
 - **บัญชี:** Supabase Auth แบบ magic link ทางอีเมล (ไม่มีรหัสผ่าน, flow `implicit`, session เก็บที่ `fm.auth`) — ต้องเปิดผ่าน http(s); `file://` แสดงข้อความให้เปิดผ่านเว็บเซิร์ฟเวอร์. URL ที่กลับมา (`origin+pathname`) ต้องอยู่ใน Redirect URLs ของโปรเจกต์ Supabase. token ใน URL ถูกลบด้วย `history.replaceState`
-- **ตาราง (RLS: เห็น/แก้ได้เฉพาะแถวของตัวเอง):** `balances(user_id pk, amount, updated_at)`, `transactions(user_id,id pk, type, amount>0, ts, source)`, `tasks(user_id,id pk, text 1..120, done, ts)`; `ts` = epoch ms เหมือนในเครื่อง
+- **ตาราง (RLS: เห็น/แก้ได้เฉพาะแถวของตัวเอง):** `balances(user_id pk, amount, updated_at)`, `transactions(user_id,id pk, type, amount>0, ts, source, category text null ยาว 1..24)`, `tasks(user_id,id pk, text 1..120, done, ts)`; `ts` = epoch ms เหมือนในเครื่อง
 - **แหล่งข้อมูล:** Supabase = ข้อมูลจริง, localStorage = แคชออฟไลน์. โมดูลเดิมไม่ถูกแก้ ยังเขียน localStorage ตามเดิม; `cloud.js` ฟัง `balance:changed`/`tx:changed`/`tasks:changed` แล้ว push แบบ debounce 600ms และข้าม event ที่ตัวเอง emit (flag) กันวน
 - **สถานะในเครื่อง:** `fm.sync = {uid, tx:[id], tasks:[id], pendingTx:[id], pendingTasks:[id], balanceDirty}` (snapshot id ที่อยู่บนคลาวด์ + การแก้ที่ยังไม่ขึ้น), `fm.balance_ts` = เวลาแก้ยอดเงินล่าสุดในเครื่อง
-- **Push:** upsert เฉพาะแถวที่ pending หรือยังไม่เคยขึ้น (≤500 แถว/คำขอ), ลบแถวบนคลาวด์ที่อยู่ใน snapshot แต่หายจากเครื่อง (≤200 id/คำขอ), upsert ยอดเงินเมื่อแก้ในเครื่อง (`updated_at` = `fm.balance_ts`). แถวไม่ถูกต้อง (type/source นอก enum, amount ≤0 หรือ ≥1e12, text ว่าง/ยาวเกิน 120) ถูกข้ามและนับ ไม่ทำให้ทั้งชุดล้ม
+- **Push:** upsert เฉพาะแถวที่ pending หรือยังไม่เคยขึ้น (≤500 แถว/คำขอ), ลบแถวบนคลาวด์ที่อยู่ใน snapshot แต่หายจากเครื่อง (≤200 id/คำขอ), upsert ยอดเงินเมื่อแก้ในเครื่อง (`updated_at` = `fm.balance_ts`). แถวไม่ถูกต้อง (type/source นอก enum, amount ≤0 หรือ ≥1e12, text ว่าง/ยาวเกิน 120) ถูกข้ามและนับ ไม่ทำให้ทั้งชุดล้ม. `category` ถูก validate ด้วย `FM.cats.normalize(type, key)` ทั้งตอนส่งและตอนดึง — ไม่มี/ไม่รู้จัก/ผิดชนิด → `null` (ไม่ทำให้แถวไม่ถูกต้อง; แถวคลาวด์ที่ไม่มีคอลัมน์นี้ถือเป็น `null`) และนับเป็นส่วนหนึ่งของแถวตอน merge (คลาวด์ชนะเมื่อ id ชนกัน ยกเว้นแถวที่แก้ค้างในเครื่อง)
 - **Pull + merge** (ตอนเข้าสู่ระบบ, แท็บกลับมาแสดง, `online`, ปุ่ม "ซิงก์ตอนนี้", retry): รายการเงิน/งาน = union ตาม id — id ชนกันคลาวด์ชนะ ยกเว้น id ที่มีการแก้ค้างในเครื่อง; id ที่เคยซิงก์แล้วหายจากฝั่งใดฝั่งหนึ่ง = ถูกลบ. ยอดเงิน = ฝั่งที่เวลาใหม่กว่าชนะ (เท่ากัน → คลาวด์). เขียนผลด้วย `FM.set` แล้ว emit `balance:changed`/`tx:changed` + `FM.tasks.reload()` จากนั้น push ส่วนที่คลาวด์ยังไม่มี. ฟังก์ชัน merge แบบ pure: `FM.cloud._merge(local, remote, meta?)`
 - **เปลี่ยนบัญชี:** ถ้า `fm.sync.uid` เป็นบัญชีอื่น ล้าง `fm.balance/tx/tasks` ก่อนรับข้อมูลบัญชีใหม่ (ไม่รวมแคชข้ามบัญชี); เข้าสู่ระบบครั้งแรก (ไม่มี uid) = รวมข้อมูลที่ใช้แบบไม่ล็อกอินขึ้นบัญชี; ออกจากระบบ = เก็บแคชไว้ หยุดซิงก์
 - **ล้มเหลว/ออฟไลน์:** ไม่ทำข้อมูลในเครื่องหาย ไม่บล็อก UI; สถานะ "ซิงก์ไม่สำเร็จ" หรือ "ออฟไลน์ — จะซิงก์เมื่อออนไลน์", retry แบบ exponential backoff (2s → สูงสุด 60s) และเมื่อ `online`; หยุดเมื่อออกจากระบบ. ไม่มีไลบรารี/config → แสดง "ซิงก์ไม่พร้อมใช้งาน" แอปทำงานตามเดิม

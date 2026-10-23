@@ -1,1 +1,150 @@
-/* kpi component styles */
+/* kpi.css — การ์ด KPI 4 ใบบนหน้าภาพรวม (js/kpi.js, §9.2–9.3)
+ * ใช้โครง .panel.slot ของ shell; ที่นี่เฉพาะสไตล์ภายในการ์ด KPI; สีจาก tokens.css เท่านั้น */
+
+/* มุมขวาบนของการ์ด: ไอคอนตกแต่ง / ปุ่มปรับยอด (วางทับมุม ไม่ทับหัวข้อ) */
+.slot--kpi { position: relative; }
+.slot--kpi .slot__title { padding-right: calc(44px + var(--space-2)); }
+
+.kpi__corner {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+.kpi__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  background: var(--sky-tint);
+  color: var(--sky);
+}
+
+.kpi__icon { width: 20px; height: 20px; flex: none; }
+
+.kpi__adjust {
+  top: var(--space-2);
+  right: var(--space-2);
+  color: var(--sky);
+}
+
+@media (hover: hover) {
+  .kpi__adjust:hover { background: var(--surface-2); }
+}
+
+@media (min-width: 768px) {
+  .kpi__corner { top: var(--space-4); right: var(--space-4); }
+  .kpi__adjust { top: var(--space-3); right: var(--space-3); }
+}
+
+/* ---------- ตัวเลขหลัก: 2rem/600 Geist Mono, ย่อตามความกว้างการ์ดเมื่อตัวเลขยาว ---------- */
+.kpi__fig { container-type: inline-size; min-width: 0; }
+
+.kpi__value {
+  --kpi-chars: 8;
+  color: var(--ink);
+  font-size: 2rem;
+  font-size: clamp(1.125rem, calc(100cqi / (var(--kpi-chars) * 0.64)), 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.kpi__value.is-negative { color: var(--down); }
+
+.kpi__unit {
+  font-family: var(--font-thai);
+  font-size: 0.5em;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* ---------- เทียบเดือนก่อน ---------- */
+.kpi__delta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-1);
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.kpi__glyph {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  font-weight: 600;
+}
+
+.kpi__tri { width: 10px; height: 10px; }
+
+.kpi__pct { font-weight: 600; }
+
+.kpi__delta[data-tone="good"] .kpi__glyph,
+.kpi__delta[data-tone="good"] .kpi__pct { color: var(--up); }
+
+.kpi__delta[data-tone="bad"] .kpi__glyph,
+.kpi__delta[data-tone="bad"] .kpi__pct { color: var(--down); }
+
+/* ---------- งาน: แถบความคืบหน้า + ข้อความ ---------- */
+.kpi__bar {
+  position: relative;
+  height: 4px;
+  margin-top: var(--space-3);
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.kpi__bar[hidden],
+.kpi__meta[hidden] { display: none; }
+
+.kpi__bar-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--sky); /* --blue บนราง --line ในโหมดมืดได้แค่ 2.4:1; --sky ≥4:1 ทั้งสองโหมด */
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease);
+}
+
+.kpi__meta {
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.kpi__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--sky);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ข้อความสำหรับ screen reader เท่านั้น */
+.kpi-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi__bar-fill { transition: none; }
+}

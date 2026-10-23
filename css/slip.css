@@ -242,6 +242,15 @@
 .slip__amount { font-size: 1.25rem; }
 .slip__amount[aria-invalid="true"] { border-color: var(--expense); }
 
+/* หมวดหมู่ (อยู่เหนือปุ่มรายรับ/รายจ่าย) */
+.slip__cat { cursor: pointer; }
+.slip__cat[aria-invalid="true"] { border-color: var(--expense); }
+
+.slip__cat-help {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
 .slip__alert {
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--expense);

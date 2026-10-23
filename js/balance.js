@@ -1,24 +1,19 @@
-/* balance.js — การ์ดยอดเงิน: ตั้งยอดใหม่, บวกเพิ่ม, count-up, ประวัติ 5 รายการ */
+/* balance.js — ฟอร์มปรับยอดเงินในกล่อง #adjust-root (ตั้งยอดใหม่ / บวกเพิ่ม + หมวดรายรับ)
+ * ไม่วาดตัวเลขยอดเงินเอง (การ์ด KPI เป็นเจ้าของ) และไม่มีประวัติ (ย้ายไปหน้า #/tx = txlist.js)
+ * เขียน fm.balance / fm.tx แล้ว emit 'balance:changed' ตามด้วย 'tx:changed'
+ * อ่านค่าจาก storage ใหม่ทุกครั้งที่กดปุ่ม จึงไม่ต้องเก็บสถานะของโมดูลอื่น */
 (function () {
   'use strict';
 
   var MAX_AMOUNT = 1e12;
-  var HISTORY_LIMIT = 5;
-  var COUNT_MS = 500;
-  var LEAVE_MS = 200;
+  var CLOSE_MS = 900;       // ค้างข้อความสำเร็จให้อ่าน/ประกาศก่อนปิดกล่อง
+  var DEFAULT_CAT = 'other';
 
   var els = {};
-  var shown = 0;            // ค่าที่แสดงอยู่ตอนนี้ (ระหว่าง count-up)
-  var target = 0;           // ค่าปลายทางของ animation
-  var rafId = 0;
   var emitting = false;     // กัน listener ของตัวเองทำงานซ้ำตอน emit
-  var busy = false;         // กำลังเล่น animation ลบแถว
   var statusTimer = 0;
-
-  var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  function reducedMotion() { return !!(mqReduce && mqReduce.matches); }
-
-  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var closeTimer = 0;
+  var closing = false;      // รอปิดกล่องหลังทำรายการสำเร็จ (ปุ่มไม่รับการกดชั่วคราว)
 
   /* ---------- state ---------- */
   function round2(x) { return Math.round(x * 100) / 100; }
@@ -33,14 +28,12 @@
     return Array.isArray(arr) ? arr : [];
   }
 
-  function isValidTx(t) {
-    return t && (t.type === 'income' || t.type === 'expense') && isFinite(Number(t.amount));
-  }
-
+  /* คืน true เมื่อเขียนลงเครื่องได้ครบ (หรือเบราว์เซอร์ไม่มี storage ตั้งแต่ต้น — แจ้งไว้แล้วตอน init) */
   function persist(balance, tx) {
     var ok1 = FM.set('balance', balance);
     var ok2 = FM.set('tx', tx);
-    if (FM.storageOk && (!ok1 || !ok2)) showStorageNotice('บันทึกข้อมูลไม่สำเร็จ พื้นที่เบราว์เซอร์อาจเต็ม ข้อมูลล่าสุดอาจหายเมื่อรีโหลด');
+    var failed = FM.storageOk && (!ok1 || !ok2);
+    if (failed) showStorageNotice('บันทึกข้อมูลไม่สำเร็จ พื้นที่เบราว์เซอร์อาจเต็ม ข้อมูลล่าสุดอาจหายเมื่อรีโหลด');
     emitting = true;
     try {
       FM.emit('balance:changed', balance);
@@ -48,6 +41,7 @@
     } finally {
       emitting = false;
     }
+    return !failed;
   }
 
   /* ---------- parsing ---------- */
@@ -67,58 +61,6 @@
     if (cls) e.className = cls;
     if (text != null) e.textContent = text;
     return e;
-  }
-
-  function trashIcon() {
-    var svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '18');
-    svg.setAttribute('height', '18');
-    svg.setAttribute('fill', 'none');
-    svg.setAttribute('stroke', 'currentColor');
-    svg.setAttribute('stroke-width', '1.5');
-    svg.setAttribute('stroke-linecap', 'round');
-    svg.setAttribute('stroke-linejoin', 'round');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('focusable', 'false');
-    var p = document.createElementNS(SVG_NS, 'path');
-    p.setAttribute('d', 'M4 7h16M10 11v6M14 11v6M5.5 7l1 12a2 2 0 0 0 2 1.8h7a2 2 0 0 0 2-1.8l1-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2');
-    svg.appendChild(p);
-    return svg;
-  }
-
-  /* ---------- balance figure ---------- */
-  function paintFigure(v) {
-    els.figure.textContent = FM.fmtMoney(v);
-    els.figure.classList.toggle('is-negative', v < 0);
-  }
-
-  function showBalance(next, animate) {
-    if (next === target) {
-      if (!rafId) { shown = next; paintFigure(next); }
-      return; // กำลังวิ่งไปค่านี้อยู่แล้ว
-    }
-    target = next;
-    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-    if (!animate || reducedMotion() || shown === next) {
-      els.figure.removeAttribute('aria-busy');
-      shown = next;
-      paintFigure(next);
-      return;
-    }
-    var from = shown;
-    var start = 0;
-    function step(now) {
-      if (!start) start = now;
-      var t = Math.min(1, (now - start) / COUNT_MS);
-      var eased = 1 - Math.pow(1 - t, 3);
-      shown = t >= 1 ? next : from + (next - from) * eased;
-      paintFigure(t >= 1 ? next : round2(shown));
-      if (t < 1) rafId = requestAnimationFrame(step);
-      else { rafId = 0; shown = next; els.figure.removeAttribute('aria-busy'); }
-    }
-    els.figure.setAttribute('aria-busy', 'true'); // ไม่ให้ screen reader อ่านทุกเฟรมของ count-up
-    rafId = requestAnimationFrame(step);
   }
 
   /* ---------- form feedback ---------- */
@@ -143,18 +85,57 @@
     els.notice.hidden = false;
   }
 
+  /* ---------- หลังทำรายการสำเร็จ: ประกาศผล แล้วปิดกล่อง (router คืน focus ให้ปุ่มที่เปิด) ---------- */
+  function setLocked(on) {
+    closing = on;
+    [els.setBtn, els.addBtn].forEach(function (b) {
+      if (on) b.setAttribute('aria-disabled', 'true');
+      else b.removeAttribute('aria-disabled');
+    });
+  }
+
+  function done(saved) {
+    els.input.value = '';
+    setSuccess('อัปเดตยอดแล้ว');
+    // เขียนลงเครื่องไม่สำเร็จ → ไม่ปิดกล่อง ให้ผู้ใช้เห็นคำเตือนก่อน
+    if (!saved) return;
+    var dlg = els.dialog;
+    if (!dlg || !dlg.open || !FM.ui || typeof FM.ui.closeAdjust !== 'function') return;
+    // ไม่ใช้ disabled เพราะปุ่มที่มี focus จะทำให้ focus หลุดไป body ระหว่างรอ
+    setLocked(true);
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(function () {
+      closeTimer = 0;
+      if (dlg.open) FM.ui.closeAdjust();
+      else resetForm();
+    }, CLOSE_MS);
+  }
+
+  /* ล้างฟอร์มทุกครั้งที่กล่องปิด (Esc / ปุ่มปิด / พื้นหลัง / หลังสำเร็จ) */
+  function resetForm() {
+    clearTimeout(closeTimer);
+    closeTimer = 0;
+    clearTimeout(statusTimer);
+    setLocked(false);
+    els.input.value = '';
+    setError('');
+    els.status.textContent = '';
+    if (els.select) els.select.value = DEFAULT_CAT;
+    // คำเตือน "บันทึกไม่สำเร็จ" เป็นของครั้งก่อน; คำเตือน "เบราว์เซอร์บันทึกไม่ได้" ต้องค้างไว้
+    if (FM.storageOk !== false) els.notice.hidden = true;
+  }
+
   /* ---------- actions ---------- */
   function onSet() {
+    if (closing) return;
     var r = parseAmount(els.input.value);
     if (r.error) { setError(r.error); els.input.focus(); return; }
     var bal = r.value === 0 ? 0 : r.value; // กัน -0
-    persist(bal, readTx());
-    showBalance(bal, true);
-    els.input.value = '';
-    setSuccess('อัปเดตยอดแล้ว');
+    done(persist(bal, readTx()));
   }
 
   function onAdd() {
+    if (closing) return;
     var r = parseAmount(els.input.value);
     if (r.error) { setError(r.error); els.input.focus(); return; }
     if (!(r.value > 0)) {
@@ -163,173 +144,22 @@
       return;
     }
     var bal = round2(readBalance() + r.value);
+    if (bal === 0) bal = 0; // กัน -0
     if (Math.abs(bal) > MAX_AMOUNT) {
       setError('ยอดรวมจะเกิน 1,000,000,000,000 บาท');
       els.input.focus();
       return;
     }
+    var category = FM.cats ? FM.cats.normalize('income', els.select ? els.select.value : DEFAULT_CAT) : null;
     var tx = readTx();
-    tx.push({ id: FM.uid(), type: 'income', amount: r.value, ts: Date.now(), source: 'manual' });
-    persist(bal, tx);
-    showBalance(bal, true);
-    renderHistory(true);
-    els.input.value = '';
-    setSuccess('อัปเดตยอดแล้ว');
+    tx.push({ id: FM.uid(), type: 'income', amount: r.value, ts: Date.now(), source: 'manual', category: category });
+    done(persist(bal, tx));
   }
 
-  function removeTx(id, rowEl) {
-    if (busy) return;
-    var tx = readTx();
-    var idx = -1;
-    for (var i = 0; i < tx.length; i++) { if (tx[i] && tx[i].id === id) { idx = i; break; } }
-    if (idx === -1) { renderHistory(false); return; }
-
-    // จำปุ่มถัดไปเพื่อย้าย focus หลังลบ
-    var rows = Array.prototype.slice.call(els.list.children);
-    var pos = rows.indexOf(rowEl);
-    var focusId = null;
-    if (pos !== -1) {
-      var neighbor = rows[pos + 1] || rows[pos - 1];
-      if (neighbor) focusId = neighbor.getAttribute('data-id');
-    }
-
-    function commit() {
-      var t = readTx();
-      var j = -1;
-      for (var k = 0; k < t.length; k++) { if (t[k] && t[k].id === id) { j = k; break; } }
-      if (j === -1) { busy = false; renderHistory(false); return; }
-      var item = t[j];
-      var amt = Number(item.amount) || 0;
-      var bal = readBalance();
-      bal = round2(item.type === 'income' ? bal - amt : bal + amt);
-      if (bal === 0) bal = 0;
-      t.splice(j, 1);
-      persist(bal, t);
-      showBalance(bal, true);
-      busy = false;
-      renderHistory(true);
-      var focusEl = focusId && els.list.querySelector('li[data-id="' + cssEscape(focusId) + '"] .balance-hist__del');
-      if (focusEl) focusEl.focus();
-      else els.input.focus();
-    }
-
-    var btn = rowEl && rowEl.querySelector('.balance-hist__del');
-    if (btn) btn.disabled = true;
-    if (!rowEl || reducedMotion()) { commit(); return; }
-    busy = true;
-    rowEl.classList.add('is-leaving');
-    var done = false;
-    function finish() { if (done) return; done = true; commit(); }
-    rowEl.addEventListener('transitionend', function (e) { if (e.target === rowEl) finish(); });
-    setTimeout(finish, LEAVE_MS + 80);
-  }
-
-  function cssEscape(s) {
-    return window.CSS && CSS.escape ? CSS.escape(s) : String(s).replace(/["\\]/g, '\\$&');
-  }
-
-  /* ---------- history ---------- */
-  var TH_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-
-  function pad2(n) { return (n < 10 ? '0' : '') + n; }
-
-  function fmtWhen(ts) {
-    var d = new Date(Number(ts));
-    if (isNaN(d.getTime())) return '';
-    var now = new Date();
-    var startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    var hm = pad2(d.getHours()) + ':' + pad2(d.getMinutes());
-    var t = d.getTime();
-    if (t >= startToday && t < startToday + 864e5) return hm + ' วันนี้';
-    if (t >= startToday - 864e5 && t < startToday) return hm + ' เมื่อวาน';
-    var s = d.getDate() + ' ' + TH_MONTHS[d.getMonth()];
-    if (d.getFullYear() !== now.getFullYear()) s += ' ' + (d.getFullYear() + 543);
-    return s;
-  }
-
-  function latest() {
-    return readTx().filter(isValidTx).sort(function (a, b) {
-      return (Number(b.ts) || 0) - (Number(a.ts) || 0);
-    }).slice(0, HISTORY_LIMIT);
-  }
-
-  function buildRow(t) {
-    var income = t.type === 'income';
-    var amt = Math.abs(Number(t.amount));
-    var sign = income ? '+' : '\u2212';
-    var typeText = income ? 'รายรับ' : 'รายจ่าย';
-    var srcText = t.source === 'slip' ? 'สลิป' : 'กรอกเอง';
-    var when = fmtWhen(t.ts);
-
-    var li = el('li', 'balance-hist__row ' + (income ? 'is-income' : 'is-expense'));
-    li.setAttribute('data-id', String(t.id));
-
-    var main = el('div', 'balance-hist__main');
-    var amount = el('span', 'balance-hist__amount num', sign + FM.fmtMoney(amt));
-    var meta = el('span', 'balance-hist__meta');
-    meta.appendChild(document.createTextNode(typeText + ' · ' + srcText + (when ? ' · ' : '')));
-    if (when) meta.appendChild(el('span', 'num', when));
-    main.appendChild(amount);
-    main.appendChild(meta);
-
-    var del = el('button', 'icon-btn balance-hist__del');
-    del.type = 'button';
-    del.setAttribute('aria-label', 'ลบรายการ ' + typeText + ' ' + FM.fmtMoney(amt) + (when ? ' ' + when : ''));
-    del.appendChild(trashIcon());
-    del.addEventListener('click', function () { removeTx(t.id, li); });
-
-    li.appendChild(main);
-    li.appendChild(del);
-    return li;
-  }
-
-  function renderHistory(animate) {
-    if (busy) return;
-    var items = latest();
-    var doAnim = animate && !reducedMotion();
-
-    // FLIP: จำตำแหน่งเดิมของแถวที่ยังอยู่
-    var before = {};
-    if (doAnim) {
-      Array.prototype.forEach.call(els.list.children, function (li) {
-        before[li.getAttribute('data-id')] = li.getBoundingClientRect().top;
-      });
-    }
-
-    els.list.textContent = '';
-    items.forEach(function (t) { els.list.appendChild(buildRow(t)); });
-    els.list.hidden = items.length === 0;
-    els.empty.hidden = items.length !== 0;
-
-    if (!doAnim) return;
-    Array.prototype.forEach.call(els.list.children, function (li) {
-      var id = li.getAttribute('data-id');
-      if (Object.prototype.hasOwnProperty.call(before, id)) {
-        var dy = before[id] - li.getBoundingClientRect().top;
-        if (dy) {
-          li.style.transition = 'none';
-          li.style.transform = 'translateY(' + dy + 'px)';
-          li.getBoundingClientRect();
-          li.style.transition = '';
-          li.style.transform = '';
-        }
-      } else {
-        li.classList.add('is-entering');
-        li.getBoundingClientRect();
-        li.classList.remove('is-entering');
-      }
-    });
-  }
-
-  /* ---------- build ---------- */
+  /* ---------- build (ภายใน #adjust-root ของกล่องปรับยอด) ---------- */
   function build(root) {
     root.textContent = '';
     root.classList.add('balance');
-
-    var figure = el('p', 'balance__figure num');
-    figure.setAttribute('aria-live', 'polite');
-    figure.setAttribute('aria-atomic', 'true');
-    figure.id = 'balance-figure';
 
     var notice = el('p', 'balance__notice');
     notice.setAttribute('role', 'status');
@@ -350,6 +180,8 @@
     input.setAttribute('autocomplete', 'off');
     input.setAttribute('placeholder', '0.00');
     input.setAttribute('aria-describedby', 'balance-error balance-status');
+    // showModal() ย้าย focus มาที่ช่องนี้แทนปุ่มปิด
+    input.setAttribute('autofocus', '');
     var error = el('p', 'field__error');
     error.id = 'balance-error';
     error.setAttribute('role', 'alert');
@@ -361,6 +193,31 @@
     field.appendChild(input);
     field.appendChild(error);
     field.appendChild(status);
+    form.appendChild(field);
+
+    // หมวดรายรับ: ใช้กับ "บวกเพิ่ม" เท่านั้น ("ตั้งยอดใหม่" ไม่สร้างรายการ)
+    var select = null;
+    var cats = FM.cats ? FM.cats.list('income') : [];
+    if (cats.length) {
+      var catField = el('div', 'field balance__field');
+      var catLabel = el('label', 'field__label', 'หมวดหมู่รายรับ');
+      catLabel.setAttribute('for', 'balance-cat');
+      select = el('select', 'input balance__select');
+      select.id = 'balance-cat';
+      select.setAttribute('aria-describedby', 'balance-cat-help');
+      cats.forEach(function (c) {
+        var o = el('option', '', c.label);
+        o.value = c.key;
+        select.appendChild(o);
+      });
+      select.value = DEFAULT_CAT;
+      var help = el('p', 'balance__help', 'ใช้กับปุ่มบวกเพิ่มเท่านั้น');
+      help.id = 'balance-cat-help';
+      catField.appendChild(catLabel);
+      catField.appendChild(select);
+      catField.appendChild(help);
+      form.appendChild(catField);
+    }
 
     var actions = el('div', 'balance__actions');
     var setBtn = el('button', 'btn', 'ตั้งยอดใหม่');
@@ -369,26 +226,16 @@
     addBtn.type = 'button';
     actions.appendChild(setBtn);
     actions.appendChild(addBtn);
-
-    form.appendChild(field);
     form.appendChild(actions);
 
-    var hist = el('div', 'balance-hist');
-    var histTitle = el('h3', 'balance-hist__title', 'รายการล่าสุด');
-    histTitle.id = 'balance-hist-title';
-    var list = el('ul', 'balance-hist__list');
-    list.setAttribute('aria-labelledby', 'balance-hist-title');
-    var empty = el('p', 'balance-hist__empty', 'ยังไม่มีรายการ กรอกยอดหรืออัปโหลดสลิปเพื่อเริ่มบันทึก');
-    hist.appendChild(histTitle);
-    hist.appendChild(list);
-    hist.appendChild(empty);
-
-    root.appendChild(figure);
     root.appendChild(notice);
     root.appendChild(form);
-    root.appendChild(hist);
 
-    els = { figure: figure, notice: notice, input: input, error: error, status: status, list: list, empty: empty };
+    els = {
+      notice: notice, input: input, error: error, status: status, select: select,
+      setBtn: setBtn, addBtn: addBtn,
+      dialog: root.closest ? root.closest('dialog') : null
+    };
 
     setBtn.addEventListener('click', onSet);
     addBtn.addEventListener('click', onAdd);
@@ -396,26 +243,24 @@
   }
 
   function init() {
-    var root = document.getElementById('balance-root');
+    var root = document.getElementById('adjust-root');
     if (!root) return;
     build(root);
 
     if (FM.storageOk === false) showStorageNotice('เบราว์เซอร์นี้บันทึกข้อมูลไม่ได้ ข้อมูลจะหายเมื่อปิดหรือรีโหลดหน้า');
 
-    var b = readBalance();
-    shown = b; target = b;
-    paintFigure(b);
-    renderHistory(false);
+    // router.js เป็นคนเปิด/ปิดกล่อง (FM.ui) — ที่นี่แค่ล้างฟอร์มเมื่อปิด
+    // ดูจาก attribute open (MutationObserver) แทน event 'close' ซึ่งมาแบบ async และบางสภาพแวดล้อมไม่มาเลย
+    var dlg = els.dialog;
+    if (dlg && window.MutationObserver) {
+      new MutationObserver(function () { if (!dlg.open) resetForm(); })
+        .observe(dlg, { attributes: true, attributeFilter: ['open'] });
+    } else if (dlg) {
+      dlg.addEventListener('close', resetForm);
+    }
 
-    // ฟังการเปลี่ยนแปลงจากโมดูลอื่น (เช่น สลิป) — อ่านจาก storage ใหม่ ไม่ emit ซ้ำ
-    FM.on('balance:changed', function () {
-      if (emitting) return;
-      showBalance(readBalance(), true);
-    });
-    FM.on('tx:changed', function () {
-      if (emitting) return;
-      renderHistory(true);
-    });
+    // ไม่ต้องฟัง 'balance:changed'/'tx:changed' ของโมดูลอื่น: ทุกปุ่มอ่าน fm.balance / fm.tx จาก storage ใหม่
+    // ตอนกด (ธง emitting ยังตั้งระหว่าง emit ของตัวเอง เผื่อมี listener ในไฟล์นี้ภายหลัง)
   }
 
   FM.balance = { init: init };

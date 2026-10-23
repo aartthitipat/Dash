@@ -360,6 +360,13 @@
         '</div>' +
         '<div class="slip__chips" role="group" aria-label="ยอดอื่นที่อ่านได้จากสลิป" data-el="chips" hidden></div>' +
         '<button type="button" class="btn slip__retry" data-el="retry" hidden>ลองอ่านใหม่</button>' +
+        // หมวดหมู่: เลือกก่อนกดรายรับ/รายจ่าย — optgroup แยกชนิด, value = "ชนิด:key" (ตัวเลือกเติมใน build)
+        '<div class="field slip__cat-field" data-el="catField">' +
+          '<label class="field__label" for="slip-cat">หมวดหมู่</label>' +
+          '<select class="input slip__cat" id="slip-cat" aria-describedby="slip-cat-help" data-el="cat"></select>' +
+          '<p class="slip__cat-help" id="slip-cat-help">เลือกก่อนกดรายรับหรือรายจ่าย</p>' +
+          '<p class="field__error" id="slip-cat-error" role="alert" data-el="catError" hidden></p>' +
+        '</div>' +
       '</div>' +
       '<div class="slip__actions" role="group" aria-label="บันทึกยอดจากสลิป">' +
         '<button type="button" class="btn btn--primary slip__btn" data-el="income" disabled><span class="slip__sign" aria-hidden="true">+</span>รายรับ</button>' +
@@ -397,6 +404,47 @@
     els.fieldError.hidden = !msg;
     if (msg) els.input.setAttribute('aria-invalid', 'true');
     else els.input.removeAttribute('aria-invalid');
+  }
+
+  /* ---------- หมวดหมู่ (select เดียว 2 optgroup) ---------- */
+  var CAT_DEFAULT = 'expense:other';
+  var CAT_GROUPS = [['expense', 'หมวดรายจ่าย'], ['income', 'หมวดรายรับ']];
+
+  function fillCats(sel) {
+    sel.textContent = '';
+    if (!FM.cats) return;
+    CAT_GROUPS.forEach(function (g) {
+      var og = document.createElement('optgroup');
+      og.label = g[1];
+      FM.cats.list(g[0]).forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = g[0] + ':' + c.key;
+        o.textContent = c.label;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+    sel.value = CAT_DEFAULT;
+  }
+
+  // คืน { group, key } ของตัวเลือกปัจจุบัน หรือ null ถ้าไม่มี
+  function readCat() {
+    var v = String(els.cat.value || '');
+    var i = v.indexOf(':');
+    if (i < 1) return null;
+    return { group: v.slice(0, i), key: v.slice(i + 1) };
+  }
+
+  function setCatError(msg) {
+    els.catError.textContent = msg || '';
+    els.catError.hidden = !msg;
+    if (msg) {
+      els.cat.setAttribute('aria-invalid', 'true');
+      els.cat.setAttribute('aria-describedby', 'slip-cat-help slip-cat-error');
+    } else {
+      els.cat.removeAttribute('aria-invalid');
+      els.cat.setAttribute('aria-describedby', 'slip-cat-help');
+    }
   }
 
   function setOcrError(msg) {
@@ -469,6 +517,7 @@
     els.retry.hidden = true;
     setOcrError('');
     setFieldError('');
+    setCatError('');
     clearChips();
     els.input.value = '';
     setActionsEnabled(false);
@@ -653,6 +702,20 @@
       els.input.focus();
       return;
     }
+    // หมวดต้องเป็นของชนิดที่กด ("อื่นๆ" มีทั้งสองชนิดจึงใช้ได้กับทั้งสองปุ่ม) — ไม่เปลี่ยนให้เอง
+    var category = null;
+    var cat = readCat();
+    if (FM.cats && cat) {
+      if (!FM.cats.isValid(type, cat.key)) {
+        setCatError(type === 'expense'
+          ? 'หมวดนี้เป็นของรายรับ เลือกหมวดรายจ่ายหรือกดรายรับ'
+          : 'หมวดนี้เป็นของรายจ่าย เลือกหมวดรายรับหรือกดรายจ่าย');
+        els.cat.focus();
+        return;
+      }
+      category = cat.key;
+    }
+    setCatError('');
     var cur = Number(FM.get('balance', 0));
     if (!isFinite(cur)) cur = 0;
     var bal = round2(type === 'income' ? cur + r.value : cur - r.value);
@@ -669,7 +732,7 @@
     var prevTx = FM.get('tx', []);
     if (!Array.isArray(prevTx)) prevTx = [];
     var tx = prevTx.slice();
-    tx.push({ id: FM.uid(), type: type, amount: r.value, ts: Date.now(), source: 'slip' });
+    tx.push({ id: FM.uid(), type: type, amount: r.value, ts: Date.now(), source: 'slip', category: category });
 
     var ok1 = FM.set('balance', bal);
     var ok2 = FM.set('tx', tx);
@@ -708,6 +771,8 @@
     els.file.value = '';
     clearChips();
     setFieldError('');
+    setCatError('');
+    if (els.cat.options.length) els.cat.value = CAT_DEFAULT;
     setOcrError('');
     setFileError('');
     setStatus('', '');
@@ -755,6 +820,17 @@
       }
     }
     if (!file) return;
+
+    // วางรูปตอนลิ้นชักปิดอยู่ → เปิดลิ้นชักก่อน (ไม่อ่านสลิปแบบมองไม่เห็น)
+    var drawer = els.root.closest ? els.root.closest('dialog') : null;
+    if (drawer) {
+      // มีกล่องโต้ตอบอื่นเปิดอยู่ (ปรับยอด / เข้าสู่ระบบ) → ไม่ซ้อนลิ้นชักทับ
+      var open = document.querySelectorAll('dialog[open]');
+      for (i = 0; i < open.length; i++) if (open[i] !== drawer) return;
+      // FM.ui.openSlip ไม่ทำอะไรถ้าเปิดอยู่แล้ว และยกเลิกการปิดถ้ากำลังเล่น animation ปิด
+      if (FM.ui && typeof FM.ui.openSlip === 'function') FM.ui.openSlip();
+      if (!drawer.open) return;
+    }
     e.preventDefault();
     acceptFile(file);
   }
@@ -799,6 +875,10 @@
       // Enter ไม่บันทึกเอง — ผู้ใช้ต้องเลือกรายรับ/รายจ่ายชัดเจน
       if (e.key === 'Enter') e.preventDefault();
     });
+
+    fillCats(els.cat);
+    if (!els.cat.options.length) els.catField.hidden = true; // ไม่มี FM.cats → บันทึก category = null
+    els.cat.addEventListener('change', function () { setCatError(''); });
 
     els.income.addEventListener('click', function () { confirm('income'); });
     els.expense.addEventListener('click', function () { confirm('expense'); });

@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/balance.css">
-  <link rel="stylesheet" href="css/chart.css">
   <link rel="stylesheet" href="css/slip.css">
   <link rel="stylesheet" href="css/tasks.css">
   <link rel="stylesheet" href="css/cloud.css">
@@ -114,8 +113,7 @@
 
           <article class="panel slot slot--chart slot--bar" id="charts-bar" aria-labelledby="charts-bar-title">
             <h2 class="panel__title slot__title" id="charts-bar-title">รายรับและรายจ่าย 7 วัน</h2>
-            <!-- ชั่วคราว: กราฟเดิม (js/chart.js) จนกว่า Phase B จะแทนที่และลบ #chart-root -->
-            <div class="slot__body"><div id="chart-root"></div></div>
+            <div class="slot__body"></div>
             <p class="slot__placeholder">ยังไม่มีกราฟ</p>
           </article>
           <article class="panel slot slot--chart slot--hbar" id="charts-hbar" aria-labelledby="charts-hbar-title">
@@ -141,13 +139,12 @@
         </div>
       </section>
 
-      <!-- รายการ: Phase B (B3) จะปรับโครงเป็นรายการทั้งหมด + ตัวกรอง -->
+      <!-- รายการ: รายการรับ-จ่ายทั้งหมด + ตัวกรอง + ปุ่มบวกเพิ่ม (js/txlist.js เติมใน #txlist-root; ชื่อหน้า = h1 ของส่วนหัว) -->
       <section class="page page--tx" data-page="tx" aria-label="รายการ" hidden>
         <div class="page__stack">
-          <section class="panel panel--balance" id="balance" aria-labelledby="balance-title">
-            <h2 class="panel__title" id="balance-title">ยอดเงินปัจจุบัน</h2>
-            <div id="balance-root"></div>
-          </section>
+          <div class="panel panel--txlist">
+            <div id="txlist-root"></div>
+          </div>
         </div>
       </section>
 
@@ -177,7 +174,7 @@
     </div>
   </dialog>
 
-  <!-- ปรับยอดเงิน: Phase B เติมฟอร์มใน #adjust-root -->
+  <!-- ปรับยอดเงิน: js/balance.js เติมฟอร์มใน #adjust-root (เปิดด้วย FM.ui.openAdjust(ปุ่มที่กด)) -->
   <dialog class="sheet sheet--modal" id="adjust-dialog" aria-labelledby="adjust-title">
     <div class="sheet__inner">
       <div class="sheet__head">
@@ -200,7 +197,6 @@
   <script src="js/theme.js"></script>
   <script src="js/router.js"></script>
   <script src="js/balance.js"></script>
-  <script src="js/chart.js"></script>
   <script src="js/slip.js"></script>
   <script src="js/tasks.js"></script>
   <script src="js/kpi.js"></script>
