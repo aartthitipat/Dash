@@ -101,6 +101,7 @@
     target = next;
     if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
     if (!animate || reducedMotion() || shown === next) {
+      els.figure.removeAttribute('aria-busy');
       shown = next;
       paintFigure(next);
       return;
@@ -114,8 +115,9 @@
       shown = t >= 1 ? next : from + (next - from) * eased;
       paintFigure(t >= 1 ? next : round2(shown));
       if (t < 1) rafId = requestAnimationFrame(step);
-      else { rafId = 0; shown = next; }
+      else { rafId = 0; shown = next; els.figure.removeAttribute('aria-busy'); }
     }
+    els.figure.setAttribute('aria-busy', 'true'); // ไม่ให้ screen reader อ่านทุกเฟรมของ count-up
     rafId = requestAnimationFrame(step);
   }
 
