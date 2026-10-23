@@ -1,0 +1,166 @@
+/* cloud.css — ปุ่มเข้าสู่ระบบ / สถานะซิงก์ในส่วนหัว + dialog เข้าสู่ระบบ */
+
+/* ---------- header ---------- */
+/* มือถือ: ชื่อ+ปุ่มธีมอยู่บรรทัดแรกตามเดิม ส่วนบัญชีขึ้นบรรทัดใหม่เต็มความกว้าง */
+.app-header { flex-wrap: wrap; }
+
+.cloud-auth {
+  order: 1;
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.cloud-auth:empty { display: none; }
+
+@media (min-width: 768px) {
+  .cloud-auth {
+    order: 0;
+    flex: 0 1 auto;
+    margin-left: auto;
+  }
+}
+
+.cloud-auth__note {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.cloud-auth__signin .icon,
+.cloud-auth__signin svg { flex: none; }
+
+.cloud-auth__sync,
+.cloud-auth__signout { flex: none; }
+
+/* ---------- status chip ---------- */
+/* จอแคบ (<480px): chip เต็มแถว ปุ่มซิงก์/ออกจากระบบอยู่แถวถัดไปด้วยกัน — ไม่บีบข้อความสถานะ */
+.cloud-chip {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+@media (min-width: 480px) {
+  .cloud-chip { flex: 1 1 auto; }
+}
+
+@media (min-width: 768px) {
+  .cloud-chip { max-width: 18rem; }
+}
+
+.cloud-chip__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.cloud-chip[data-state="synced"] .cloud-chip__dot { background: var(--accent); }
+.cloud-chip[data-state="error"] .cloud-chip__dot { background: var(--expense); }
+
+.cloud-chip__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.cloud-chip__status {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.cloud-chip[data-state="error"] .cloud-chip__status { color: var(--expense); }
+
+.cloud-chip__email {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- dialog ---------- */
+.cloud-dialog {
+  width: min(440px, calc(100% - 2 * var(--space-4)));
+  max-width: none;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  margin: auto; /* reset `* { margin: 0 }` ทำให้ dialog ไม่อยู่กลางจอ */
+  padding: var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-panel);
+  overflow-y: auto;
+}
+
+/* ค่าสำรองใน var() ใช้เฉพาะเบราว์เซอร์เก่าที่ ::backdrop ไม่สืบทอดตัวแปรจาก :root */
+.cloud-dialog::backdrop {
+  background: rgb(var(--shadow-tint, 23 32 29) / 0.5);
+}
+
+.cloud-dialog[open] {
+  animation: cloud-dialog-in var(--dur) var(--ease);
+}
+
+@keyframes cloud-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cloud-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.cloud-dialog__title { font-size: 1.25rem; }
+
+.cloud-dialog__close {
+  flex: none;
+  margin-right: calc(-1 * var(--space-2));
+  border-color: transparent;
+  background: transparent;
+}
+
+.cloud-dialog__help {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-5);
+}
+
+.cloud-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cloud-dialog__success {
+  color: var(--accent);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.cloud-dialog__success:empty { display: none; }
+
+.cloud-dialog__send { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-dialog[open] { animation: none; }
+}

@@ -385,6 +385,31 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(markAll);
   }
 
+  /* อ่าน 'tasks' จาก storage ใหม่แล้ววาดรายการ+สรุปใหม่ (ใช้เมื่อโมดูลอื่น เช่น cloud.js เขียนข้อมูลแทน) — ไม่ emit */
+  function reload() {
+    if (!els.list) return;
+    var active = document.activeElement;
+    var focusId = null;
+    var focusSel = null;
+    if (active && els.list.contains(active)) {
+      var row = active.closest('.task');
+      if (row) {
+        focusId = row.dataset.id;
+        focusSel = active.classList.contains('task__del') ? '.task__del' : '.task__cb';
+      }
+    }
+    tasks = sanitize(FM.get('tasks', []));
+    els.list.textContent = '';
+    tasks.forEach(function (t) { els.list.appendChild(buildRow(t)); });
+    updateSummary();
+    markAll();
+    if (focusId) {
+      var again = rowById(focusId);
+      var target = again && again.querySelector(focusSel);
+      if (target) target.focus();
+    }
+  }
+
   window.FM = window.FM || {};
-  FM.tasks = { init: init };
+  FM.tasks = { init: init, reload: reload };
 })();

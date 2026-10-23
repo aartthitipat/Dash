@@ -93,3 +93,17 @@ Panel: รัศมี 20px, เส้น 1px `--line`, เงาบางย้
 - ธีมสว่าง/มืดสลับได้ กราฟเปลี่ยนสีตาม
 - ไม่มี console error; ใช้ได้ที่ 320 / 768 / 1024 / 1440 px
 - Self-check รายงานผล + สรุป Obsidian ต่อทุกส่วนที่เสร็จ
+
+## 8. Cloud sync (Supabase, local-first)
+> ส่วนนี้แทนที่ "ไม่มี backend/บัญชีผู้ใช้/ซิงก์ข้ามเครื่อง" ใน Non-goals ข้อ 1
+- **ไฟล์:** `js/config.js` (`window.FM_CONFIG = {SUPABASE_URL, SUPABASE_KEY}` — คีย์ publishable สาธารณะเท่านั้น ห้าม service_role), `js/cloud.js`, `css/cloud.css`; ไลบรารี `@supabase/supabase-js@2.58.0` UMD จาก jsDelivr (SRI). ลำดับสคริปต์: โมดูลเดิม → `config.js` → supabase → `cloud.js` → `main.js` (เรียก `FM.cloud.init()` หลังโมดูลอื่น)
+- **บัญชี:** Supabase Auth แบบ magic link ทางอีเมล (ไม่มีรหัสผ่าน, flow `implicit`, session เก็บที่ `fm.auth`) — ต้องเปิดผ่าน http(s); `file://` แสดงข้อความให้เปิดผ่านเว็บเซิร์ฟเวอร์. URL ที่กลับมา (`origin+pathname`) ต้องอยู่ใน Redirect URLs ของโปรเจกต์ Supabase. token ใน URL ถูกลบด้วย `history.replaceState`
+- **ตาราง (RLS: เห็น/แก้ได้เฉพาะแถวของตัวเอง):** `balances(user_id pk, amount, updated_at)`, `transactions(user_id,id pk, type, amount>0, ts, source)`, `tasks(user_id,id pk, text 1..120, done, ts)`; `ts` = epoch ms เหมือนในเครื่อง
+- **แหล่งข้อมูล:** Supabase = ข้อมูลจริง, localStorage = แคชออฟไลน์. โมดูลเดิมไม่ถูกแก้ ยังเขียน localStorage ตามเดิม; `cloud.js` ฟัง `balance:changed`/`tx:changed`/`tasks:changed` แล้ว push แบบ debounce 600ms และข้าม event ที่ตัวเอง emit (flag) กันวน
+- **สถานะในเครื่อง:** `fm.sync = {uid, tx:[id], tasks:[id], pendingTx:[id], pendingTasks:[id], balanceDirty}` (snapshot id ที่อยู่บนคลาวด์ + การแก้ที่ยังไม่ขึ้น), `fm.balance_ts` = เวลาแก้ยอดเงินล่าสุดในเครื่อง
+- **Push:** upsert เฉพาะแถวที่ pending หรือยังไม่เคยขึ้น (≤500 แถว/คำขอ), ลบแถวบนคลาวด์ที่อยู่ใน snapshot แต่หายจากเครื่อง (≤200 id/คำขอ), upsert ยอดเงินเมื่อแก้ในเครื่อง (`updated_at` = `fm.balance_ts`). แถวไม่ถูกต้อง (type/source นอก enum, amount ≤0 หรือ ≥1e12, text ว่าง/ยาวเกิน 120) ถูกข้ามและนับ ไม่ทำให้ทั้งชุดล้ม
+- **Pull + merge** (ตอนเข้าสู่ระบบ, แท็บกลับมาแสดง, `online`, ปุ่ม "ซิงก์ตอนนี้", retry): รายการเงิน/งาน = union ตาม id — id ชนกันคลาวด์ชนะ ยกเว้น id ที่มีการแก้ค้างในเครื่อง; id ที่เคยซิงก์แล้วหายจากฝั่งใดฝั่งหนึ่ง = ถูกลบ. ยอดเงิน = ฝั่งที่เวลาใหม่กว่าชนะ (เท่ากัน → คลาวด์). เขียนผลด้วย `FM.set` แล้ว emit `balance:changed`/`tx:changed` + `FM.tasks.reload()` จากนั้น push ส่วนที่คลาวด์ยังไม่มี. ฟังก์ชัน merge แบบ pure: `FM.cloud._merge(local, remote, meta?)`
+- **เปลี่ยนบัญชี:** ถ้า `fm.sync.uid` เป็นบัญชีอื่น ล้าง `fm.balance/tx/tasks` ก่อนรับข้อมูลบัญชีใหม่ (ไม่รวมแคชข้ามบัญชี); เข้าสู่ระบบครั้งแรก (ไม่มี uid) = รวมข้อมูลที่ใช้แบบไม่ล็อกอินขึ้นบัญชี; ออกจากระบบ = เก็บแคชไว้ หยุดซิงก์
+- **ล้มเหลว/ออฟไลน์:** ไม่ทำข้อมูลในเครื่องหาย ไม่บล็อก UI; สถานะ "ซิงก์ไม่สำเร็จ" หรือ "ออฟไลน์ — จะซิงก์เมื่อออนไลน์", retry แบบ exponential backoff (2s → สูงสุด 60s) และเมื่อ `online`; หยุดเมื่อออกจากระบบ. ไม่มีไลบรารี/config → แสดง "ซิงก์ไม่พร้อมใช้งาน" แอปทำงานตามเดิม
+- **UI:** ส่วนหัวข้างปุ่มธีม — ไม่ล็อกอิน: ปุ่ม "เข้าสู่ระบบเพื่อซิงก์"; ล็อกอิน: chip สถานะ (aria-live polite: ซิงก์แล้ว / กำลังซิงก์… / ออฟไลน์ / ซิงก์ไม่สำเร็จ) + อีเมลแบบปิดบางส่วน + ปุ่ม "ซิงก์ตอนนี้" + "ออกจากระบบ"; มือถือ (<768) ส่วนบัญชีขึ้นบรรทัดใหม่. Dialog เข้าสู่ระบบเป็น `<dialog>` + `showModal()` (Esc ปิด, focus คืนปุ่มเดิม)
+- **ข้อจำกัด:** last-write-wins ระดับแถว/ยอดเงิน (เวลาเครื่องต่างกันมีผล), ยอดเงินไม่คำนวณจากรายการ จึงอาจไม่ตรงกับผลรวมรายการถ้าแก้พร้อมกันหลายเครื่อง, การแก้ในเครื่องขณะไลบรารีโหลดไม่ได้จะไม่ถูกนับเป็น pending (แถวใหม่ยังขึ้นตามปกติ แต่การแก้แถวเดิมแพ้คลาวด์)

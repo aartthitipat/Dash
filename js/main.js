@@ -28,6 +28,14 @@
         }
       }
     });
+    // ซิงก์คลาวด์เริ่มหลังโมดูลอื่นพร้อมแล้ว (ต้องมี FM.tasks.reload และ listener ของ balance/chart)
+    if (FM.cloud && typeof FM.cloud.init === 'function') {
+      try {
+        FM.cloud.init();
+      } catch (e) {
+        if (window.console) console.error(e);
+      }
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);

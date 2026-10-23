@@ -14,3 +14,6 @@ css/balance.css — สไตล์การ์ดยอดเงิน+ปร�
 css/chart.css — สไตล์กราฟ
 css/slip.css — สไตล์ระบบอ่านสลิป
 css/tasks.css — สไตล์งานประจำวัน
+js/config.js — ค่าเชื่อมต่อ Supabase (URL + คีย์ publishable สาธารณะ)
+js/cloud.js — ซิงก์ Supabase แบบ local-first: เข้าสู่ระบบ magic link, push/pull/merge, FM.cloud
+css/cloud.css — สไตล์ปุ่มบัญชี/สถานะซิงก์ในส่วนหัว + dialog เข้าสู่ระบบ
