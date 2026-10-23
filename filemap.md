@@ -10,3 +10,7 @@ js/tasks.js — งานประจำวัน
 js/main.js — จุดเริ่มระบบ
 docs/SPEC.md — สเปกและ design contract
 docs/PLAN.md — แผนงานแบ่ง task
+css/balance.css — สไตล์การ์ดยอดเงิน+ประวัติ
+css/chart.css — สไตล์กราฟ
+css/slip.css — สไตล์ระบบอ่านสลิป
+css/tasks.css — สไตล์งานประจำวัน

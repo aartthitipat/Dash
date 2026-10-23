@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>การเงินและกิจวัตร</title>
+  <script>
+    /* ตั้งธีมก่อนวาดหน้า กันจอกะพริบ */
+    (function () {
+      try {
+        var t = JSON.parse(localStorage.getItem('fm.theme'));
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400..600&family=Noto+Sans+Thai:wght@400..700&family=Outfit:wght@400..700&display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/balance.css">
+  <link rel="stylesheet" href="css/chart.css">
+  <link rel="stylesheet" href="css/slip.css">
+  <link rel="stylesheet" href="css/tasks.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header__titles">
+        <h1 class="app-title">การเงินและกิจวัตร</h1>
+        <p class="app-date" id="today-date"></p>
+      </div>
+      <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="สลับเป็นโหมดมืด" aria-pressed="false">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel panel--balance" id="balance" aria-labelledby="balance-title">
+        <h2 class="panel__title" id="balance-title">ยอดเงินปัจจุบัน</h2>
+        <div id="balance-root"></div>
+      </section>
+
+      <section class="panel panel--slip" id="slip" aria-labelledby="slip-title">
+        <h2 class="panel__title" id="slip-title">อ่านสลิป</h2>
+        <div id="slip-root"></div>
+      </section>
+
+      <section class="panel panel--chart" id="chart" aria-labelledby="chart-title">
+        <h2 class="panel__title" id="chart-title">รายรับและรายจ่าย 7 วัน</h2>
+        <div id="chart-root"></div>
+      </section>
+
+      <section class="panel panel--tasks" id="tasks" aria-labelledby="tasks-title">
+        <h2 class="panel__title" id="tasks-title">งานวันนี้</h2>
+        <div id="tasks-root"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/balance.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/slip.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

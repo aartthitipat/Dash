@@ -1,0 +1,198 @@
+/* Layout + component */
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+img, svg, canvas { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-thai);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- shell ---------- */
+.app {
+  max-width: 1400px;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-12);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.app-title { font-size: clamp(1.375rem, 3vw, 1.75rem); }
+.app-date { color: var(--muted); font-size: 0.9375rem; }
+
+/* ---------- grid ---------- */
+/* DOM order = balance, slip, chart, tasks (ลำดับมือถือ) */
+.dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .app { padding: var(--space-8) var(--space-8) var(--space-16); }
+  .dashboard { gap: var(--space-6); }
+}
+
+@media (min-width: 1024px) {
+  .dashboard {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "balance balance balance balance balance balance balance slip slip slip slip slip"
+      "chart   chart   chart   chart   chart   chart   chart   tasks tasks tasks tasks tasks";
+    align-items: start;
+  }
+  .panel--balance { grid-area: balance; }
+  .panel--slip    { grid-area: slip; }
+  .panel--chart   { grid-area: chart; }
+  .panel--tasks   { grid-area: tasks; }
+}
+
+/* ---------- panel ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-5);
+  min-width: 0;
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+@media (min-width: 768px) {
+  .panel { padding: var(--space-6); }
+}
+
+/* ยอดเงินหลักไม่ใส่กล่อง */
+.panel--balance {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  padding-inline: 0;
+}
+
+.panel__title {
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+/* ---------- focus ---------- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- controls ---------- */
+.btn,
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  transition: transform var(--dur-fast) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.btn { padding: 0 var(--space-4); }
+.icon-btn { min-width: 44px; padding: 0; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn:active,
+.icon-btn:active { transform: scale(0.98); }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.field__error {
+  color: var(--expense);
+  font-size: 0.875rem;
+}
+
+.input {
+  min-height: 44px;
+  width: 100%;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.input:focus-visible { border-color: var(--accent); }
+
+/* ---------- theme toggle ---------- */
+.theme-toggle .icon--sun { display: none; }
+.theme-toggle[aria-pressed="true"] .icon--sun { display: block; }
+.theme-toggle[aria-pressed="true"] .icon--moon { display: none; }
+
+/* ---------- load stagger (ครั้งเดียว) ---------- */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.panel {
+  animation: panel-in var(--dur-slow) var(--ease) both;
+}
+.panel--balance { animation-delay: 0ms; }
+.panel--slip    { animation-delay: 60ms; }
+.panel--chart   { animation-delay: 120ms; }
+.panel--tasks   { animation-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel { animation: none; }
+  .btn:active,
+  .icon-btn:active { transform: none; }
+  .btn, .icon-btn { transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+}

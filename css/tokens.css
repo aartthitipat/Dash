@@ -1,0 +1,76 @@
+/* Design tokens — แก้สี/ระยะ/motion ที่นี่เท่านั้น */
+
+:root {
+  color-scheme: light;
+
+  /* สี (โหมดสว่าง) */
+  --bg: #EEF1F0;
+  --surface: #FAFBFA;
+  --ink: #17201D;
+  --muted: #5E6B66;
+  --line: #D7DEDB;
+  --accent: #0F7A5C;
+  --expense: #B24A5E;
+  --on-accent: #FAFBFA;
+
+  /* เงาบางย้อมสีพื้น */
+  --shadow-tint: 23 32 29;
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.04), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.10);
+
+  /* ระยะ (สเกล 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* รัศมี */
+  --radius-panel: 20px;
+  --radius-control: 12px;
+
+  /* ฟอนต์ */
+  --font-ui: "Outfit", "Noto Sans Thai", system-ui, sans-serif;
+  --font-thai: "Noto Sans Thai", "Outfit", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 500ms;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121514;
+  --surface: #1A1E1C;
+  --ink: #E6ECE9;
+  --muted: #8E9A95;
+  --line: #2A312E;
+  --accent: #3FB68B;
+  --expense: #D8758A;
+  --on-accent: #121514;
+  --shadow-tint: 6 9 8;
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.30), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121514;
+    --surface: #1A1E1C;
+    --ink: #E6ECE9;
+    --muted: #8E9A95;
+    --line: #2A312E;
+    --accent: #3FB68B;
+    --expense: #D8758A;
+    --on-accent: #121514;
+    --shadow-tint: 6 9 8;
+    --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.30), 0 12px 32px -12px rgb(var(--shadow-tint) / 0.55);
+  }
+}
