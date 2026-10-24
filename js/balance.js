@@ -1,5 +1,5 @@
 /* balance.js — ฟอร์มปรับยอดเงินในกล่อง #adjust-root (ตั้งยอดใหม่ / บวกเพิ่ม + หมวดรายรับ)
- * ไม่วาดตัวเลขยอดเงินเอง (การ์ด KPI เป็นเจ้าของ) และไม่มีประวัติ (ย้ายไปหน้า #/tx = txlist.js)
+ * การ์ด KPI เป็นเจ้าของตัวเลขยอดเงินหลัก (ที่นี่แสดงแค่บรรทัด "ยอดปัจจุบัน" ในกล่อง) และไม่มีประวัติ (ย้ายไปหน้า #/tx = txlist.js)
  * เขียน fm.balance / fm.tx แล้ว emit 'balance:changed' ตามด้วย 'tx:changed'
  * อ่านค่าจาก storage ใหม่ทุกครั้งที่กดปุ่ม จึงไม่ต้องเก็บสถานะของโมดูลอื่น */
 (function () {
@@ -111,6 +111,10 @@
     }, CLOSE_MS);
   }
 
+  function renderCurrent() {
+    if (els.currentVal) els.currentVal.textContent = FM.fmtMoney(readBalance());
+  }
+
   /* ล้างฟอร์มทุกครั้งที่กล่องปิด (Esc / ปุ่มปิด / พื้นหลัง / หลังสำเร็จ) */
   function resetForm() {
     clearTimeout(closeTimer);
@@ -164,6 +168,11 @@
     var notice = el('p', 'balance__notice');
     notice.setAttribute('role', 'status');
     notice.hidden = true;
+
+    // ยอดที่ "ตั้งยอดใหม่" จะเขียนทับ (อัปเดตตอนเปิดกล่องและเมื่อยอดเปลี่ยน)
+    var current = el('p', 'balance__current', 'ยอดปัจจุบัน ');
+    var currentVal = el('span', 'num balance__current-val');
+    current.appendChild(currentVal);
 
     // ไม่ใช้ <form> เพื่อไม่ให้ Enter ทำงานโดยไม่ตั้งใจ — ใช้ปุ่มเท่านั้น
     var form = el('div', 'balance__form');
@@ -229,10 +238,11 @@
     form.appendChild(actions);
 
     root.appendChild(notice);
+    root.appendChild(current);
     root.appendChild(form);
 
     els = {
-      notice: notice, input: input, error: error, status: status, select: select,
+      notice: notice, input: input, error: error, status: status, select: select, currentVal: currentVal,
       setBtn: setBtn, addBtn: addBtn,
       dialog: root.closest ? root.closest('dialog') : null
     };
@@ -246,6 +256,9 @@
     var root = document.getElementById('adjust-root');
     if (!root) return;
     build(root);
+    renderCurrent();
+    // ยอดเปลี่ยนจากที่ใด (กล่องนี้/สลิป/ลบรายการ/ซิงก์คลาวด์) ก็อัปเดตบรรทัดยอดปัจจุบัน
+    FM.on('balance:changed', renderCurrent);
 
     if (FM.storageOk === false) showStorageNotice('เบราว์เซอร์นี้บันทึกข้อมูลไม่ได้ ข้อมูลจะหายเมื่อปิดหรือรีโหลดหน้า');
 
@@ -253,13 +266,13 @@
     // ดูจาก attribute open (MutationObserver) แทน event 'close' ซึ่งมาแบบ async และบางสภาพแวดล้อมไม่มาเลย
     var dlg = els.dialog;
     if (dlg && window.MutationObserver) {
-      new MutationObserver(function () { if (!dlg.open) resetForm(); })
+      new MutationObserver(function () { if (!dlg.open) resetForm(); else renderCurrent(); })
         .observe(dlg, { attributes: true, attributeFilter: ['open'] });
     } else if (dlg) {
       dlg.addEventListener('close', resetForm);
     }
 
-    // ไม่ต้องฟัง 'balance:changed'/'tx:changed' ของโมดูลอื่น: ทุกปุ่มอ่าน fm.balance / fm.tx จาก storage ใหม่
+    // ฟัง 'balance:changed' แค่เพื่อบรรทัดยอดปัจจุบัน: ทุกปุ่มอ่าน fm.balance / fm.tx จาก storage ใหม่
     // ตอนกด (ธง emitting ยังตั้งระหว่าง emit ของตัวเอง เผื่อมี listener ในไฟล์นี้ภายหลัง)
   }
 

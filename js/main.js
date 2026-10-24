@@ -1,5 +1,5 @@
 /* main.js — จุดเริ่มระบบ: ตั้งวันที่, router, เรียก init ของแต่ละโมดูล
- * โมดูลที่ยังไม่มี (kpi/charts/txlist ของ Phase B) ถูกข้ามอัตโนมัติ */
+ * โมดูลที่ไม่มีใน FM ถูกข้ามอัตโนมัติ */
 (function () {
   'use strict';
 
@@ -27,7 +27,7 @@
         if (window.console) console.error(e);
       }
     }
-    ['balance', 'chart', 'slip', 'tasks', 'kpi', 'charts', 'txlist'].forEach(function (name) {
+    ['balance', 'slip', 'tasks', 'kpi', 'charts', 'txlist'].forEach(function (name) {
       var mod = FM[name];
       if (mod && typeof mod.init === 'function') {
         try {
@@ -37,7 +37,7 @@
         }
       }
     });
-    // ซิงก์คลาวด์เริ่มหลังโมดูลอื่นพร้อมแล้ว (ต้องมี FM.tasks.reload และ listener ของ balance/chart)
+    // ซิงก์คลาวด์เริ่มหลังโมดูลอื่นพร้อมแล้ว (ต้องมี FM.tasks.reload และ listener ของโมดูลที่ฟัง tx/balance)
     if (FM.cloud && typeof FM.cloud.init === 'function') {
       try {
         FM.cloud.init();

@@ -46,7 +46,7 @@
 }
 
 .charts__swatch--income { background: var(--blue); }
-.charts__swatch--expense { background: var(--sky); }
+.charts__swatch--expense { background: var(--sky-graphic); }
 
 /* segmented control: role=group + ปุ่ม aria-pressed, เป้ากด 44px */
 .charts__seg {

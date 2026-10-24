@@ -15,6 +15,16 @@
   font-size: 0.875rem;
 }
 
+.balance__current {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.balance__current-val {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* ---------- form (กล่องกว้าง ≤440px: เรียงแนวตั้ง) ---------- */
 .balance__form {
   display: flex;

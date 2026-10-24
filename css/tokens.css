@@ -18,6 +18,8 @@
   --blue: #1E4FD6;
   --sky: #0A6EB6;
   --sky-tint: #BFE3FF;
+  /* ชุดข้อมูลที่ 2 ในกราฟ (กราฟิก ไม่ใช่ข้อความ): สว่างกว่า --sky ให้แยกจาก --blue ได้ (2.0:1) แต่ยัง 3.3:1 บน surface */
+  --sky-graphic: #2493E0;
   --on-blue: #FFFFFF;
   --up: #0D8757;
   --down: #C8374D;
@@ -81,6 +83,7 @@
   --blue: #2F5BE0;
   --sky: #8FD3FF;
   --sky-tint: rgb(143 211 255 / 0.14);
+  --sky-graphic: var(--sky);
   --on-blue: #FFFFFF;
   --up: #3DDC97;
   --down: #FF5C70;
@@ -104,6 +107,7 @@
     --blue: #2F5BE0;
     --sky: #8FD3FF;
     --sky-tint: rgb(143 211 255 / 0.14);
+    --sky-graphic: var(--sky);
     --on-blue: #FFFFFF;
     --up: #3DDC97;
     --down: #FF5C70;

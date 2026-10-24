@@ -175,6 +175,7 @@
     var raw = {
       blue: readToken('--blue'),
       sky: readToken('--sky'),
+      skyGraphic: readToken('--sky-graphic'),
       ink: readToken('--ink'),
       muted: readToken('--muted'),
       line: readToken('--line'),
@@ -610,7 +611,7 @@
       type: 'bar',
       data: {
         labels: data.days.map(function (d) { return d.label; }),
-        datasets: [ds('รายรับ', 'income', 'blue'), ds('รายจ่าย', 'expense', 'sky')]
+        datasets: [ds('รายรับ', 'income', 'blue'), ds('รายจ่าย', 'expense', 'skyGraphic')]
       },
       options: {
         responsive: true,

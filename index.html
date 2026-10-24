@@ -59,6 +59,17 @@
       </ul>
     </nav>
 
+    <!-- ปุ่มธีมตัวเดียว: มือถืออยู่มุมขวาบนของส่วนหัว, ≥768 ย้ายไปล่างสุดของ rail ด้วย CSS -->
+    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="โหมดมืด" aria-pressed="false">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+
     <header class="topbar">
       <div class="topbar__titles">
         <h1 class="topbar__title" id="page-title" tabindex="-1">ภาพรวม</h1>
@@ -74,17 +85,6 @@
         <div class="cloud-auth" id="cloud-auth"></div>
       </div>
     </header>
-
-    <!-- ปุ่มธีมตัวเดียว: มือถืออยู่มุมขวาบนของส่วนหัว, ≥768 ย้ายไปล่างสุดของ rail ด้วย CSS -->
-    <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="สลับเป็นโหมดมืด" aria-pressed="false">
-        <svg class="icon icon--moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/>
-        </svg>
-        <svg class="icon icon--sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-        </svg>
-      </button>
 
     <main class="pages" id="main" data-boot>
       <!-- ภาพรวม: กริด 4 คอลัมน์ (§9.3) — ช่องว่างรอ Phase B เติม; id อยู่ที่การ์ด เนื้อหาใส่ใน .slot__body -->

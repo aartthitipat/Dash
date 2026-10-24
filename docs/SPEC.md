@@ -16,15 +16,23 @@ Status: DRAFT รออนุมัติจากผู้ใช้
 ## 3. สถาปัตยกรรม (ไฟล์ = โมดูล, namespace กลาง `window.FM`)
 | ไฟล์ | หน้าที่ |
 |---|---|
-| `index.html` | โครง DOM, โหลด CDN/สคริปต์ตามลำดับ |
+| `index.html` | โครง DOM (shell: rail, ส่วนหัว, หน้า `data-page`, dialog สลิป/ปรับยอด), โหลด CDN/สคริปต์ตามลำดับ |
 | `css/tokens.css` | design tokens (สี/ระยะ/เงา/motion) ทั้งโหมดสว่างและมืด |
-| `css/style.css` | layout + component |
+| `css/style.css` | reset, การ์ด `.panel`, ปุ่ม, ช่องกรอก, focus, ปุ่มธีม |
+| `css/shell.css` | rail/แถบแท็บล่าง, ส่วนหัว, หน้า+transition, กริดภาพรวม, ลิ้นชัก/กล่องโต้ตอบ |
+| `css/kpi.css` / `css/charts.css` / `css/txlist.css` | การ์ด KPI / ชุดกราฟ+รายการล่าสุด / หน้ารายการ |
+| `css/balance.css` / `css/slip.css` / `css/tasks.css` / `css/cloud.css` | ฟอร์มปรับยอด / อ่านสลิป / งานประจำวัน / บัญชี+ซิงก์ |
 | `js/store.js` | อ่าน/เขียน localStorage ปลอดภัย (try/catch), pub/sub `FM.on/emit` |
+| `js/categories.js` | หมวดหมู่รายรับ/รายจ่าย (`FM.cats`) ข้อมูลล้วน |
 | `js/theme.js` | สลับ light/dark, จำค่า, เคารพ `prefers-color-scheme` |
-| `js/balance.js` | การ์ดยอดเงิน, ตั้งยอดใหม่, บวกเพิ่ม, count-up |
-| `js/chart.js` | กราฟรายรับ vs รายจ่าย 7 วัน (Chart.js), อัปเดตตามสีธีม |
-| `js/slip.js` | อัปโหลดสลิป → OCR → แก้ตัวเลข → เลือกรายรับ/รายจ่าย |
+| `js/router.js` | hash routing `#/` `#/tx` `#/tasks` (`FM.router`) + เปิด/ปิดลิ้นชักสลิป/กล่องปรับยอด (`FM.ui`) |
+| `js/balance.js` | ฟอร์มในกล่องปรับยอด: ตั้งยอดใหม่, บวกเพิ่ม (+หมวดรายรับ), บรรทัดยอดปัจจุบัน |
+| `js/kpi.js` | การ์ด KPI 4 ใบ (ยอดเงิน, รายรับ/รายจ่ายเดือนนี้ ▲▼%, งานวันนี้) |
+| `js/charts.js` | กราฟ 4 ชุด (Chart.js: แท่ง 7/30 วัน, แท่งนอนตามหมวด, โดนัท, พื้นที่สุทธิสะสม) + รายการล่าสุด |
+| `js/txlist.js` | หน้ารายการ: ตัวกรอง, ลบ (ย้อนยอด), ปุ่มบวกเพิ่ม |
+| `js/slip.js` | อัปโหลดสลิป → OCR → แก้ตัวเลข → เลือกหมวด → รายรับ/รายจ่าย |
 | `js/tasks.js` | เพิ่ม/ติ๊ก/ลบงาน |
+| `js/config.js` / `js/cloud.js` | ค่าเชื่อมต่อ Supabase / ซิงก์ local-first + เข้าสู่ระบบ magic link (`FM.cloud`) |
 | `js/main.js` | เริ่มระบบ ต่อโมดูลเข้าด้วยกัน |
 
 ## 4. Data model (localStorage, prefix `fm.`)

@@ -19,7 +19,7 @@
     if (!btn) return;
     var dark = theme === 'dark';
     btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    btn.setAttribute('aria-label', dark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
+    btn.setAttribute('aria-label', 'โหมดมืด');
   }
 
   function apply(theme, persist) {

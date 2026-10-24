@@ -67,7 +67,7 @@
     var text;
     if (pct > PCT_CAP) text = PCT_CAP + '%+';
     else if (pct < 0.1) text = '<0.1%';
-    else text = String(Math.round(pct * 10) / 10) + '%';
+    else text = (Math.round(pct * 10) / 10).toFixed(1) + '%';
     return { kind: kind, tone: good ? 'good' : 'bad', text: text, pct: pct };
   }
 
