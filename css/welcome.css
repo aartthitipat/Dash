@@ -1,0 +1,946 @@
+/* welcome.css — หน้าแรก #/welcome (hero แบบ "ดาวเคราะห์ + แดชบอร์ดลอยขึ้น") docs/WELCOME-PLAN.md
+ * - มืดเสมอ: map ชื่อ token ทั่วไปมาที่ชุด --hero-* (css/tokens.css) เฉพาะในหน้านี้
+ * - เดสก์ท็อป (≥900px และแนวนอน): stage 1672×941 ขนาดตาม --s ที่ js/welcome.js เขียนลง .hero
+ *   ตัวอักษร/ปุ่มมีค่าต่ำสุด (ไม่ย่อด้วย transform) เพื่อให้อ่านได้และเป้ากด ≥44px; พรีวิวแดชบอร์ด (ตกแต่ง) ย่อด้วย scale
+ * - มือถือ (<900px หรือแนวตั้ง): เรียงเป็นคอลัมน์, เมนูเป็นปุ่มเปิด <dialog>
+ * - motion: transform/opacity เท่านั้น, ปิดทั้งหมดเมื่อ prefers-reduced-motion */
+
+.page--welcome {
+  color-scheme: dark;
+  --bg: var(--hero-bg);
+  --surface: var(--hero-surface);
+  --surface-2: var(--hero-surface-2);
+  --ink: var(--hero-ink);
+  --muted: var(--hero-muted);
+  --line: var(--hero-line);
+  --line-strong: var(--hero-line-strong);
+  --blue: var(--hero-blue);
+  --sky: var(--hero-sky);
+  --sky-tint: var(--hero-sky-tint);
+  --sky-graphic: var(--hero-sky);
+  --on-blue: var(--hero-on-blue);
+  --up: var(--hero-up);
+  --down: var(--hero-down);
+  --focus: var(--hero-sky);
+  --accent: var(--hero-blue);
+  --on-accent: var(--hero-on-blue);
+  --expense: var(--hero-down);
+  --card-border: transparent;
+  --shadow-tint: var(--hero-shadow-tint);
+  --shadow-panel: 0 1px 2px rgb(var(--hero-shadow-tint) / 0.40), 0 16px 40px -16px rgb(var(--hero-shadow-tint) / 0.70);
+  color: var(--ink);
+}
+
+/* หน้าแรกมี timeline ของตัวเอง ไม่ใช้ page-in ของ router (transform บน section จะทำให้ชั้นท้องฟ้าเลื่อน) */
+.page--welcome.is-entering { animation: none; }
+
+/* ---------- hero ---------- */
+.hero {
+  --s: 0.8; /* ค่าเริ่มก่อน JS วัด */
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ---------- ท้องฟ้า ---------- */
+.hero__sky {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--hero-vh, 100vh);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.hero__canvas--rim { mix-blend-mode: screen; }
+
+/* แสงหายใจรอบยอดโค้งของขอบดาวเคราะห์ (opacity เท่านั้น) */
+.hero__pulse {
+  --pulse-w: calc(var(--s) * 1180px);
+  --pulse-h: calc(var(--s) * 300px);
+  position: absolute;
+  left: 50%;
+  top: calc(var(--rim-y, 140px) - var(--pulse-h) / 2);
+  width: var(--pulse-w);
+  height: var(--pulse-h);
+  margin-left: calc(var(--pulse-w) / -2);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--hero-glow), transparent);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  animation: hero-pulse var(--hero-pulse) var(--ease) infinite alternate;
+}
+
+@keyframes hero-pulse {
+  from { opacity: 0.45; }
+  to   { opacity: 1; }
+}
+
+/* แสงพาด 3 เส้น (transform + opacity) อยู่ใต้ขอบดาวเคราะห์ */
+.hero__streak {
+  position: absolute;
+  left: 0;
+  top: calc(var(--rim-y, 140px) + 48px + var(--k) * 15%);
+  width: calc(var(--s) * 220px + 60px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hero-glow-sky), transparent);
+  opacity: 0;
+  animation: hero-streak calc(9s + var(--k) * 4s) linear infinite;
+  animation-delay: calc(1.5s + var(--k) * 3.2s);
+}
+
+@keyframes hero-streak {
+  0%   { opacity: 0; transform: translate3d(-30vw, 0, 0) rotate(7deg); }
+  4%   { opacity: 1; }
+  12%  { opacity: 0; transform: translate3d(110vw, 16vh, 0) rotate(7deg); }
+  100% { opacity: 0; transform: translate3d(110vw, 16vh, 0) rotate(7deg); }
+}
+
+/* ---------- nav ---------- */
+.hero-nav {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  width: calc(var(--s) * (var(--hero-stage-w) - 2 * var(--hero-gutter)));
+  min-height: var(--hero-nav-h);
+  margin: calc(var(--s) * var(--hero-nav-top)) auto 0;
+}
+
+.hero-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  font-family: var(--font-ui);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.hero-logo__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--hero-edge);
+  border-radius: var(--radius-control);
+  background: var(--hero-pill);
+  color: var(--sky);
+}
+
+.hero-nav__menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--hero-radius-pill);
+  background: var(--hero-pill);
+}
+
+.hero-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--hero-radius-pill);
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+/* ขอบ --muted: ตัวบอกหน้าปัจจุบันต้อง ≥3:1 กับพื้นแคปซูล (--line-strong ได้ 2.6:1) */
+.hero-nav__link[aria-current="page"] {
+  border-color: var(--muted);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.hero-nav__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  justify-self: end;
+}
+
+.hero-nav__menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--hero-pill);
+  color: var(--ink);
+}
+
+@media (hover: hover) {
+  .hero-nav__link:hover { color: var(--ink); }
+}
+
+/* ---------- ปุ่ม ---------- */
+.hero-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max(44px, calc(var(--s) * 56px));
+  padding: 0 max(var(--space-6), calc(var(--s) * var(--space-8)));
+  border: 1px solid transparent;
+  border-radius: var(--hero-radius-pill);
+  font-family: var(--font-ui);
+  font-size: max(0.9375rem, calc(var(--s) * 1.0625rem));
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.hero-btn--sm {
+  min-height: 44px;
+  padding: 0 var(--space-5);
+  font-size: 0.9375rem;
+}
+
+.hero-btn--primary {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--on-blue);
+}
+
+.hero-btn--dark {
+  border-color: var(--line-strong);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* เรืองแสงตอน hover: ชั้นเงา (opacity) + ชั้นสว่างขึ้น (opacity) — ไม่ animate เงา/สีโดยตรง */
+.hero-btn::before,
+.hero-btn::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.hero-btn::before {
+  z-index: -1;
+  box-shadow: 0 0 0 1px var(--hero-glow-sky), 0 10px 36px -6px var(--hero-glow), 0 0 28px -4px var(--hero-glow);
+}
+
+.hero-btn::after { background: var(--hero-sheen); }
+
+@media (hover: hover) {
+  .hero-btn:hover::before,
+  .hero-btn:hover::after { opacity: 1; }
+}
+
+.hero-btn:active { transform: scale(0.98); }
+
+/* ---------- ข้อความหลัก ---------- */
+.hero__copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--s) * (var(--hero-panel-top) - var(--hero-nav-top)) - var(--hero-nav-h));
+  padding: var(--space-6) var(--space-6) calc(var(--s) * var(--space-10));
+  text-align: center;
+}
+
+.hero__title {
+  font-family: var(--font-ui);
+  font-size: max(2.5rem, calc(var(--s) * var(--hero-h1)));
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.hero__title:focus,
+.hero__title:focus-visible { outline: none; } /* focus จาก router เท่านั้น (ไม่อยู่ในลำดับ Tab) */
+
+/* mask ต่อบรรทัดสำหรับ wipe-up; เว้นที่บน/ล่างให้สระและวรรณยุกต์ไทยไม่ถูกตัด */
+.hero__line {
+  display: block;
+  overflow: hidden;
+  padding: 0.12em 0.04em 0.2em;
+  margin: -0.12em 0 -0.2em;
+}
+
+.hero__line-in { display: block; }
+
+.hero__brand {
+  background: linear-gradient(90deg, var(--hero-brand-from), var(--sky));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (forced-colors: active) {
+  .hero__brand { background: none; color: CanvasText; }
+}
+
+.hero__lede {
+  max-width: max(30em, calc(var(--s) * 760px));
+  margin-top: max(var(--space-4), calc(var(--s) * var(--space-6)));
+  color: var(--muted);
+  font-size: max(0.9375rem, calc(var(--s) * 1.25rem));
+  line-height: 1.7;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: max(var(--space-6), calc(var(--s) * var(--space-10)));
+}
+
+/* ---------- แท่นพรีวิว (ลอยขึ้นจากขอบล่าง) ---------- */
+.hero__dock {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  display: flex;
+  width: calc(var(--s) * var(--hero-panel-w));
+  min-height: calc(var(--s) * 240px);
+  margin: 0 auto;
+}
+
+/* เส้นเรืองแสงขอบบน: แถบฟุ้ง (นอกกรอบ) + เส้น 1px (::before ของแผง) */
+.hero__edge-glow {
+  position: absolute;
+  z-index: 1;
+  left: 15%;
+  right: 15%;
+  top: -24px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--hero-glow-sky), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.hero-panel {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border: 1px solid var(--hero-edge);
+  border-bottom: 0;
+  border-radius: calc(var(--s) * var(--hero-radius)) calc(var(--s) * var(--hero-radius)) 0 0;
+  background: var(--hero-glass);
+  box-shadow: 0 -24px 80px -32px var(--hero-glow);
+}
+
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sky), transparent);
+  pointer-events: none;
+}
+
+/* เนื้อในวางที่ขนาด stage แล้วย่อด้วย scale (JS ตั้ง --hp-w/--hp-h = ขนาดกรอบ ÷ --s) */
+.hp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--hp-w, var(--hero-panel-w));
+  height: var(--hp-h, 600px);
+  transform: scale(var(--s));
+  transform-origin: 0 0;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  font-family: var(--font-thai);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+
+.hp__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-height: 0;
+  padding: var(--space-6) var(--space-4);
+  border-right: 1px solid var(--line);
+}
+
+.hp__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.hp__brand .hero-logo__mark { width: 28px; height: 28px; }
+
+.hp__menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hp__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.hp__item svg { flex: none; }
+
+.hp__item.is-active {
+  background: var(--sky-tint);
+  color: var(--sky);
+}
+
+.hp__promo {
+  margin-top: auto;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--hero-glass-2);
+}
+
+.hp__promo-title { font-weight: 600; }
+
+.hp__promo-text {
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.hp__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+  border-radius: var(--hero-radius-pill);
+  background: var(--blue);
+  color: var(--on-blue);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.hp__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.hp__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.hp__title {
+  margin-right: auto;
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.hp__sample {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--sky);
+  border-radius: var(--hero-radius-pill);
+  color: var(--sky);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.hp__sample[hidden] { display: none; }
+
+.hp__user {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--hero-radius-pill);
+  background: var(--hero-glass-2);
+  color: var(--ink);
+  font-size: 0.8125rem;
+}
+
+.hp__user svg { color: var(--muted); }
+
+.hp__body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--space-5);
+  min-height: 0;
+  padding: var(--space-5) var(--space-6);
+}
+
+.hp__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  min-height: 0;
+}
+
+.hp__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.hp-card {
+  min-width: 0;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--hero-glass-2);
+}
+
+.hp-stat__label { color: var(--muted); font-size: 0.8125rem; }
+
+.hp-stat__value {
+  margin-top: var(--space-1);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.hp-stat__delta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hp-stat__delta svg { flex: none; }
+.hp-stat__delta .num { font-weight: 600; }
+.hp-stat__delta[data-tone="good"] .hp-stat__tone { color: var(--up); }
+.hp-stat__delta[data-tone="bad"] .hp-stat__tone { color: var(--down); }
+.hp-stat__tone { display: inline-flex; align-items: center; gap: 2px; }
+
+.hp-chart {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.hp-chart__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hp-chart__title { font-weight: 600; }
+.hp-chart__sub { color: var(--muted); font-size: 0.75rem; }
+.hp-chart__max { color: var(--muted); font-size: 0.75rem; }
+
+.hp-chart__svg {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 80px;
+  margin-top: var(--space-3);
+  overflow: visible;
+}
+
+.hp-chart__grid {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+  vector-effect: non-scaling-stroke;
+}
+
+.hp-chart__stop-a { stop-color: var(--blue); stop-opacity: 0.45; }
+.hp-chart__stop-b { stop-color: var(--blue); stop-opacity: 0; }
+
+.hp-chart__area { fill: url(#hp-fill); stroke: none; }
+
+.hp-chart__line {
+  fill: none;
+  stroke: var(--sky);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hp-chart__axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.hp-sum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-self: start;
+}
+
+.hp-sum__title { font-weight: 600; }
+
+.hp-sum__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.hp-sum__value {
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.hp-sum__bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--hero-radius-pill);
+  background: var(--line);
+}
+
+.hp-sum__fill {
+  display: block;
+  height: 100%;
+  background: var(--sky);
+  transform: scaleX(var(--p, 0));
+  transform-origin: 0 50%;
+}
+
+/* ---------- เมนูมือถือ (<dialog>) ---------- */
+.hero-menu {
+  position: fixed;
+  inset: 0 0 auto 0;
+  width: auto;
+  max-width: none;
+  max-height: calc(100dvh - 2 * var(--space-3));
+  margin: calc(var(--space-3) + env(safe-area-inset-top, 0px)) var(--space-3) auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--hero-edge);
+  border-radius: var(--hero-radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-panel);
+}
+
+/* ค่าสำรองใน var() สำหรับเบราว์เซอร์ที่ ::backdrop ไม่สืบทอดตัวแปร (แบบเดียวกับ shell.css) */
+.hero-menu::backdrop { background: rgb(var(--hero-shadow-tint, 1 4 12) / 0.7); }
+
+.hero-menu[open] { animation: hero-menu-in var(--dur) var(--ease); }
+
+@keyframes hero-menu-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero-menu__inner { padding: var(--space-2) var(--space-3) var(--space-4); }
+
+.hero-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 0 var(--space-2) var(--space-3);
+}
+
+.hero-menu__title { font-size: 1.125rem; }
+
+.hero-menu__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+}
+
+.hero-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-menu__link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.hero-menu__link[aria-current="page"] {
+  background: var(--sky-tint);
+  color: var(--sky);
+}
+
+@media (hover: hover) {
+  .hero-menu__close:hover,
+  .hero-menu__link:not([aria-current]):hover { background: var(--surface-2); }
+}
+
+/* ---------- มือถือ / แนวตั้ง: เรียงเป็นคอลัมน์ ---------- */
+@media (max-width: 899.98px), (orientation: portrait) {
+  .hero__pulse {
+    --pulse-w: 130vw;
+    --pulse-h: 200px;
+  }
+
+  .hero__streak { width: 120px; }
+
+  .hero-nav {
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: auto;
+    margin: 0;
+    padding:
+      calc(var(--space-3) + env(safe-area-inset-top, 0px))
+      calc(var(--space-4) + env(safe-area-inset-right, 0px))
+      var(--space-3)
+      calc(var(--space-4) + env(safe-area-inset-left, 0px));
+  }
+
+  .hero-nav__menu,
+  .hero-nav__cta { display: none; }
+
+  .hero-nav__menu-btn { display: inline-flex; }
+
+  .hero__copy {
+    min-height: 0;
+    padding: var(--space-16) var(--space-4) var(--space-10);
+  }
+
+  .hero__title { font-size: clamp(1.75rem, 0.75rem + 6vw, 3.5rem); }
+
+  .hero__lede {
+    max-width: 34em;
+    font-size: 1rem;
+  }
+
+  .hero-btn {
+    min-height: 48px;
+    padding: 0 var(--space-6);
+    font-size: 1rem;
+  }
+
+  .hero__dock {
+    flex: none;
+    width: auto;
+    min-height: 0;
+    margin: 0 var(--space-4) calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .hero-panel {
+    border-bottom: 1px solid var(--hero-edge);
+    border-radius: var(--hero-radius);
+  }
+
+  .hp {
+    position: static;
+    width: auto;
+    height: auto;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hp__side {
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hp__menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .hp__item {
+    min-height: 32px;
+    gap: var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--hero-radius-pill);
+    font-size: 0.8125rem;
+  }
+
+  .hp__item.is-active { border-color: transparent; }
+  .hp__promo { display: none; }
+
+  .hp__top {
+    flex-wrap: wrap;
+    min-height: 0;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .hp__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .hp__stats {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .hp-stat__value { font-size: 1.375rem; }
+
+  .hp-chart__svg {
+    flex: none;
+    height: 140px;
+  }
+
+  .hp-sum { align-self: stretch; }
+}
+
+/* ---------- timeline เปิดตัว (js/welcome.js ใส่ .is-entering เมื่อเข้าหน้า) ---------- */
+@keyframes hero-fade-down {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes hero-wipe-up {
+  from { opacity: 0; transform: translateY(105%); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes hero-dock-rise {
+  from { opacity: 0; transform: translateY(max(64px, calc(var(--s) * 140px))); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero.is-entering [data-enter] {
+  animation-duration: var(--hero-dur);
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
+
+.hero.is-entering [data-enter="nav"] { animation-name: hero-fade-down; }
+
+.hero.is-entering [data-enter="line"] {
+  animation-name: hero-wipe-up;
+  animation-delay: calc(var(--hero-step) * (2 + var(--i, 0) * 1.5));
+}
+
+.hero.is-entering [data-enter="lede"] {
+  animation-name: hero-rise;
+  animation-delay: calc(var(--hero-step) * 5);
+}
+
+.hero.is-entering [data-enter="actions"] {
+  animation-name: hero-rise;
+  animation-delay: calc(var(--hero-step) * 6);
+}
+
+.hero.is-entering [data-enter="dock"] {
+  animation-name: hero-dock-rise;
+  animation-duration: var(--hero-dur-long);
+  animation-delay: calc(var(--hero-step) * 7);
+}
+
+.hero.is-entering [data-enter="part"] {
+  animation-name: hero-rise;
+  animation-delay: calc(var(--hero-step) * (11 + var(--i, 0)));
+}
+
+/* ---------- reduced motion: ไม่มี timeline, ไม่มีแสงหายใจ/แสงพาด ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero.is-entering [data-enter],
+  .hero__pulse,
+  .hero-menu[open] { animation: none; }
+  .hero__streak { display: none; }
+  .hero-btn { transition: none; }
+  .hero-btn:active { transform: none; }
+}

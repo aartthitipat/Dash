@@ -300,6 +300,22 @@ body::after {
   .shell > .theme-toggle { left: calc((var(--rail-w) - 44px) / 2); }
 }
 
+/* ---------- หน้าแรก #/welcome: ซ่อนโครงแอป ให้หน้าเต็มจอ (router ตั้ง body[data-route]) ---------- */
+/* ลิ้นชักสลิป / กล่องปรับยอด / กล่องเข้าสู่ระบบยังใช้ได้ (อยู่นอก .shell) */
+:root:has(> body[data-route="welcome"]) { color-scheme: dark; }
+body[data-route="welcome"] { background: var(--hero-bg); }
+body[data-route="welcome"]::before,
+body[data-route="welcome"]::after,
+body[data-route="welcome"] .rail,
+body[data-route="welcome"] .topbar,
+body[data-route="welcome"] #theme-toggle { display: none; }
+
+body[data-route="welcome"] .shell {
+  display: block;
+  min-height: 0;
+  padding: 0;
+}
+
 /* ---------- หน้า (router สลับด้วย hidden) ---------- */
 .page { min-width: 0; }
 .page[hidden] { display: none; }

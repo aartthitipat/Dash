@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="css/kpi.css">
   <link rel="stylesheet" href="css/charts.css">
   <link rel="stylesheet" href="css/txlist.css">
+  <link rel="stylesheet" href="css/welcome.css">
 </head>
 <body>
   <div class="shell">
@@ -156,6 +157,152 @@
           </section>
         </div>
       </section>
+
+      <!-- หน้าแรก #/welcome (js/welcome.js + css/welcome.css): มืดเสมอ, ซ่อน rail/ส่วนหัวด้วย body[data-route="welcome"] -->
+      <section class="page page--welcome" data-page="welcome" aria-labelledby="welcome-title" hidden>
+        <div class="hero" id="hero">
+          <!-- ท้องฟ้า: ดาว (canvas) + ขอบดาวเคราะห์ (canvas, screen) + แสงหายใจ/แสงพาด (CSS) — ตกแต่งล้วน -->
+          <div class="hero__sky" aria-hidden="true">
+            <canvas class="hero__canvas hero__canvas--stars" id="hero-stars"></canvas>
+            <span class="hero__streak" style="--k: 0"></span>
+            <span class="hero__streak" style="--k: 1"></span>
+            <span class="hero__streak" style="--k: 2"></span>
+            <canvas class="hero__canvas hero__canvas--rim" id="hero-rim"></canvas>
+            <span class="hero__pulse"></span>
+          </div>
+
+          <nav class="hero-nav" aria-label="เมนูหน้าแรก" data-enter="nav">
+            <span class="hero-logo">
+              <span class="hero-logo__mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2.5L5.5 13.5H11l-1 8 8.5-11H13l0-8z"/></svg>
+              </span>
+              <span class="hero-logo__name">Dash</span>
+            </span>
+            <ul class="hero-nav__menu">
+              <li><a class="hero-nav__link" href="#/welcome" aria-current="page">หน้าแรก</a></li>
+              <li><a class="hero-nav__link" href="#/">ภาพรวม</a></li>
+              <li><a class="hero-nav__link" href="#/tx">รายการ</a></li>
+              <li><a class="hero-nav__link" href="#/tasks">กิจวัตร</a></li>
+            </ul>
+            <div class="hero-nav__end">
+              <a class="hero-btn hero-btn--primary hero-btn--sm hero-nav__cta" href="#/" data-welcome-start>เริ่มใช้งาน</a>
+              <button type="button" class="hero-nav__menu-btn" id="hero-menu-btn" aria-label="เปิดเมนู" aria-haspopup="dialog" aria-controls="hero-menu" aria-expanded="false">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </button>
+            </div>
+          </nav>
+
+          <div class="hero__copy">
+            <h1 class="hero__title" id="welcome-title" tabindex="-1">
+              <span class="hero__line"><span class="hero__line-in" data-enter="line" style="--i: 0"><span class="hero__brand">Dash</span> ดูเงินและกิจวัตร</span></span>
+              <span class="hero__line"><span class="hero__line-in" data-enter="line" style="--i: 1">ครบในหน้าเดียว</span></span>
+            </h1>
+            <p class="hero__lede" data-enter="lede">บันทึกรายรับรายจ่ายจากสลิปธนาคารในไม่กี่วินาที ดูกราฟและงานประจำวันรวมกัน ข้อมูลอยู่ในเครื่องคุณและซิงก์ขึ้นคลาวด์เมื่อเข้าสู่ระบบ</p>
+            <div class="hero__actions" data-enter="actions">
+              <a class="hero-btn hero-btn--primary" href="#/" data-welcome-start>เริ่มใช้งาน</a>
+              <button type="button" class="hero-btn hero-btn--dark" data-welcome-slip aria-haspopup="dialog" aria-controls="slip-drawer">ลองอ่านสลิป</button>
+            </div>
+          </div>
+
+          <!-- พรีวิวแดชบอร์ด: ตกแต่งล้วน (ซ่อนจาก AT + inert) ข้อมูลจริงผ่าน FM.kpi._calc หรือข้อมูลตัวอย่างเมื่อยังไม่มีข้อมูล -->
+          <div class="hero__dock" data-enter="dock" aria-hidden="true" inert>
+            <span class="hero__edge-glow"></span>
+            <div class="hero-panel" id="hero-panel">
+              <div class="hp">
+                <div class="hp__side" data-enter="part" style="--i: 0">
+                  <div class="hp__brand">
+                    <span class="hero-logo__mark"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2.5L5.5 13.5H11l-1 8 8.5-11H13l0-8z"/></svg></span>
+                    <span>Dash</span>
+                  </div>
+                  <ul class="hp__menu">
+                    <li class="hp__item is-active"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>ภาพรวม</li>
+                    <li class="hp__item"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></svg>รายการ</li>
+                    <li class="hp__item"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5l3 3 8-8"/><path d="M20 12.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>กิจวัตร</li>
+                    <li class="hp__item"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>ตั้งค่า</li>
+                  </ul>
+                  <div class="hp__promo">
+                    <p class="hp__promo-title">ซิงก์ข้ามเครื่อง</p>
+                    <p class="hp__promo-text">เข้าสู่ระบบด้วยอีเมล ข้อมูลตามไปทุกเครื่อง</p>
+                    <span class="hp__pill">เข้าสู่ระบบ</span>
+                  </div>
+                </div>
+                <div class="hp__main">
+                  <div class="hp__top" data-enter="part" style="--i: 1">
+                    <p class="hp__title">ภาพรวม</p>
+                    <span class="hp__sample" data-hp="sample" hidden>ข้อมูลตัวอย่าง</span>
+                    <span class="hp__user">
+                      <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+                      <span data-hp="user">ผู้เยี่ยมชม</span>
+                    </span>
+                  </div>
+                  <div class="hp__body">
+                    <div class="hp__left">
+                      <div class="hp__stats">
+                        <div class="hp-card hp-stat" data-enter="part" style="--i: 2">
+                          <p class="hp-stat__label">รายรับเดือนนี้</p>
+                          <p class="hp-stat__value num" data-hp="income">฿0.00</p>
+                          <p class="hp-stat__delta" data-hp="income-delta"></p>
+                        </div>
+                        <div class="hp-card hp-stat" data-enter="part" style="--i: 3">
+                          <p class="hp-stat__label">รายจ่ายเดือนนี้</p>
+                          <p class="hp-stat__value num" data-hp="expense">฿0.00</p>
+                          <p class="hp-stat__delta" data-hp="expense-delta"></p>
+                        </div>
+                      </div>
+                      <div class="hp-card hp-chart" data-enter="part" style="--i: 4">
+                        <div class="hp-chart__head">
+                          <div>
+                            <p class="hp-chart__title">กราฟรายวัน</p>
+                            <p class="hp-chart__sub">รายจ่าย <span class="num">30</span> วันล่าสุด</p>
+                          </div>
+                          <p class="hp-chart__max num" data-hp="max"></p>
+                        </div>
+                        <svg class="hp-chart__svg" viewBox="0 0 600 200" preserveAspectRatio="none" focusable="false">
+                          <defs>
+                            <linearGradient id="hp-fill" x1="0" y1="0" x2="0" y2="1">
+                              <stop class="hp-chart__stop-a" offset="0"/>
+                              <stop class="hp-chart__stop-b" offset="1"/>
+                            </linearGradient>
+                          </defs>
+                          <path class="hp-chart__grid" d="M0 50.5H600M0 100.5H600M0 150.5H600"/>
+                          <path class="hp-chart__area" data-hp="area" d=""/>
+                          <path class="hp-chart__line" data-hp="line" d=""/>
+                        </svg>
+                        <div class="hp-chart__axis"><span><span class="num">30</span> วันก่อน</span><span>วันนี้</span></div>
+                      </div>
+                    </div>
+                    <div class="hp-card hp-sum" data-enter="part" style="--i: 5">
+                      <p class="hp-sum__title">สรุปเดือนนี้</p>
+                      <div class="hp-sum__row"><span>จำนวนรายการ</span><span class="hp-sum__value num" data-hp="count">0</span></div>
+                      <div class="hp-sum__row"><span>งานที่ทำเสร็จ</span><span class="hp-sum__value num" data-hp="tasks">0/0</span></div>
+                      <div class="hp-sum__bar"><span class="hp-sum__fill" data-hp="tasks-bar"></span></div>
+                      <div class="hp-sum__row"><span>สลิปที่อ่าน</span><span class="hp-sum__value num" data-hp="slips">0</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- เมนูมือถือ (<900px หรือแนวตั้ง) -->
+        <dialog class="hero-menu" id="hero-menu" aria-labelledby="hero-menu-title">
+          <div class="hero-menu__inner">
+            <div class="hero-menu__head">
+              <h2 class="hero-menu__title" id="hero-menu-title">เมนู</h2>
+              <button type="button" class="hero-menu__close" data-menu-close aria-label="ปิดเมนู">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <ul class="hero-menu__list">
+              <li><a class="hero-menu__link" href="#/welcome" aria-current="page">หน้าแรก</a></li>
+              <li><a class="hero-menu__link" href="#/">ภาพรวม</a></li>
+              <li><a class="hero-menu__link" href="#/tx">รายการ</a></li>
+              <li><a class="hero-menu__link" href="#/tasks">กิจวัตร</a></li>
+            </ul>
+          </div>
+        </dialog>
+      </section>
     </main>
   </div>
 
@@ -205,6 +352,7 @@
   <script src="js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js" integrity="sha384-KX6Y/AMIv9qA8TLCDul2JatZWeyrJVgj3Xu/0r30Nr05xO8md1+wHAgtdsRV9LoE" crossorigin="anonymous"></script>
   <script src="js/cloud.js"></script>
+  <script src="js/welcome.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

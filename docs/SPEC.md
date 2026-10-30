@@ -34,6 +34,7 @@ Status: DRAFT รออนุมัติจากผู้ใช้
 | `js/tasks.js` | เพิ่ม/ติ๊ก/ลบงาน |
 | `js/config.js` / `js/cloud.js` | ค่าเชื่อมต่อ Supabase / ซิงก์ local-first + เข้าสู่ระบบ magic link (`FM.cloud`) |
 | `js/main.js` | เริ่มระบบ ต่อโมดูลเข้าด้วยกัน |
+| `js/welcome.js` / `css/welcome.css` | หน้าแรก `#/welcome` (`FM.welcome`): hero มืดเสมอ (token `--hero-*`), ท้องฟ้า canvas, พรีวิวแดชบอร์ดจาก `FM.kpi._calc` (ไม่มีข้อมูล = "ข้อมูลตัวอย่าง"), เมนูมือถือ `<dialog>` — แผน: `docs/WELCOME-PLAN.md` |
 
 ## 4. Data model (localStorage, prefix `fm.`)
 - `fm.balance`: number (ทศนิยม ≤ 2 ตำแหน่ง, ปัดด้วย `Math.round(x*100)/100`)
@@ -41,6 +42,7 @@ Status: DRAFT รออนุมัติจากผู้ใช้
 - `fm.txFilter`: `"all"|"income"|"expense"` ตัวกรองของหน้า `#/tx` (txlist.js)
 - `fm.tasks`: `[{id, text, done, ts}]`
 - `fm.theme`: `"light"|"dark"` (ไม่มี = ตามระบบ)
+- `fm.welcomed`: `true` หลังกด "เริ่มใช้งาน" ในหน้าแรก; เปิดเว็บโดยไม่มี hash และยังไม่ใช่ `true` → router พาไป `#/welcome` (replaceState, ลิงก์ตรง `#/…` ไม่ถูกเปลี่ยน)
 - Event: `balance:changed`, `tx:changed`, `tasks:changed`, `theme:changed`
 
 ## 5. Flow สำคัญ

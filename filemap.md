@@ -2,7 +2,7 @@ index.html — โครง DOM (shell: rail, ส่วนหัว, หน้�
 css/tokens.css — design tokens สว่าง(ฟ้า-ขาว)/มืด(navy) v2 + alias ชื่อเดิม (แก้สี/ระยะ/motion ที่นี่)
 css/style.css — reset, การ์ด .panel, ปุ่ม, ช่องกรอก, focus, ปุ่มธีม
 css/shell.css — rail/แถบแท็บล่าง, ส่วนหัวของหน้า, หน้า+transition, กริดภาพรวม (slot), ลิ้นชัก/กล่องโต้ตอบ, แสงพื้นหลัง
-js/router.js — hash routing #/ #/tx #/tasks (FM.router) + เปิด/ปิดลิ้นชักสลิป/กล่องปรับยอด (FM.ui)
+js/router.js — hash routing #/ #/tx #/tasks #/welcome (FM.router, body[data-route], เข้าครั้งแรก→#/welcome) + เปิด/ปิดลิ้นชักสลิป/กล่องปรับยอด (FM.ui)
 js/categories.js — หมวดหมู่รายรับ/รายจ่าย (FM.cats) ข้อมูลล้วน
 js/store.js — localStorage + pub/sub (`FM.on/emit`)
 js/theme.js — สลับธีม
@@ -24,3 +24,5 @@ css/tasks.css — สไตล์งานประจำวัน
 js/config.js — ค่าเชื่อมต่อ Supabase (URL + คีย์ publishable สาธารณะ)
 js/cloud.js — ซิงก์ Supabase แบบ local-first: เข้าสู่ระบบ magic link, push/pull/merge, FM.cloud
 css/cloud.css — สไตล์ปุ่มบัญชี/สถานะซิงก์ในส่วนหัว + dialog เข้าสู่ระบบ
+js/welcome.js — หน้าแรก #/welcome (FM.welcome): สเกล stage (--s), canvas ดาว/ขอบดาวเคราะห์, timeline เปิดตัว, พรีวิวแดชบอร์ดจากข้อมูลจริง/ตัวอย่าง, เมนูมือถือ dialog, ปุ่มเริ่มใช้งาน (fm.welcomed)
+css/welcome.css — สไตล์หน้าแรก: map token มืด (--hero-*), hero/เมนู/ปุ่ม/พรีวิว, เลย์เอาต์มือถือ (<900px หรือแนวตั้ง), motion + reduced motion

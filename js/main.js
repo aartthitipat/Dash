@@ -27,7 +27,7 @@
         if (window.console) console.error(e);
       }
     }
-    ['balance', 'slip', 'tasks', 'kpi', 'charts', 'txlist'].forEach(function (name) {
+    ['balance', 'slip', 'tasks', 'kpi', 'charts', 'txlist', 'welcome'].forEach(function (name) {
       var mod = FM[name];
       if (mod && typeof mod.init === 'function') {
         try {

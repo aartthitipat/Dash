@@ -118,3 +118,49 @@
     --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / 0.40), 0 16px 40px -16px rgb(var(--shadow-tint) / 0.70);
   }
 }
+
+/* หน้าแรก #/welcome (hero) — มืดเสมอ ไม่ขึ้นกับธีมแอป (docs/WELCOME-PLAN.md)
+ * ค่าสีชุดมืดซ้ำไว้ที่นี่เพราะ .page--welcome ต้องใช้ชุดมืดแม้แอปอยู่โหมดสว่าง; css/welcome.css map ชื่อทั่วไป (--bg, --ink …) มาที่ชุดนี้
+ * --hero-brand-from: น้ำเงินสว่างขึ้นสำหรับไล่สีคำ "Dash" (5.9:1 บน --hero-bg; --hero-blue ได้แค่ 3.4:1)
+ * ขนาด stage 1672×941 ตามต้นแบบ: JS เขียน --s = min(vw/1672, vh/941) ลง .hero */
+:root {
+  --hero-bg: #060B16;
+  --hero-surface: #0F1A30;
+  --hero-surface-2: #16233F;
+  --hero-ink: #E8F0FF;
+  --hero-muted: #8FA3C8;
+  --hero-line: #1E2D4D;
+  --hero-line-strong: #516793;
+  --hero-blue: #2F5BE0;
+  --hero-sky: #8FD3FF;
+  --hero-sky-tint: rgb(143 211 255 / 0.14);
+  --hero-on-blue: #FFFFFF;
+  --hero-up: #3DDC97;
+  --hero-down: #FF5C70;
+  --hero-brand-from: #6B93FF;
+  --hero-shadow-tint: 1 4 12;
+  --hero-glass: rgb(15 26 48 / 0.86);
+  --hero-glass-2: rgb(22 35 63 / 0.64);
+  --hero-pill: rgb(22 35 63 / 0.62);
+  --hero-edge: rgb(47 91 224 / 0.55);
+  --hero-glow: rgb(47 91 224 / 0.42);
+  --hero-glow-sky: rgb(143 211 255 / 0.6);
+  --hero-sheen: rgb(232 240 255 / 0.1);
+
+  /* เรขาคณิต stage (หน่วย px ของต้นแบบ คูณ --s ตอนใช้) */
+  --hero-stage-w: 1672px;
+  --hero-panel-w: 1204px;
+  --hero-panel-top: 651px;
+  --hero-nav-top: 24px;
+  --hero-nav-h: 56px;
+  --hero-gutter: 56px;
+  --hero-h1: 84px;
+  --hero-radius: 14px;
+  --hero-radius-pill: 999px;
+
+  /* motion ของ hero */
+  --hero-dur: 700ms;
+  --hero-dur-long: 1000ms;
+  --hero-step: 90ms;
+  --hero-pulse: 4s;
+}

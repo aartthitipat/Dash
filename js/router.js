@@ -1,4 +1,6 @@
-/* router.js — hash routing (#/, #/tx, #/tasks) + ลิ้นชักสลิป/กล่องปรับยอด (FM.ui)
+/* router.js — hash routing (#/, #/tx, #/tasks, #/welcome) + ลิ้นชักสลิป/กล่องปรับยอด (FM.ui)
+ * - เข้าเว็บครั้งแรกโดยไม่มี hash และ fm.welcomed ไม่ใช่ true → #/welcome (replaceState)
+ * - ตั้ง body[data-route] ทุกครั้งที่เปลี่ยนหน้า
  * - สลับหน้าด้วย hidden ของ <section data-page> (ไม่ทำลาย DOM ของโมดูล)
  * - hash ที่ไม่ใช่ route (เช่น #access_token=… จากลิงก์เข้าสู่ระบบ) ไม่แตะ ปล่อยให้ cloud.js จัดการ
  * - emit 'route:changed' (ชื่อหน้า) หลังสลับหน้า ให้โมดูลที่ต้องวัดขนาดใหม่ฟังได้
@@ -7,12 +9,14 @@
   'use strict';
 
   var APP_NAME = 'การเงินและกิจวัตร';
+  // focus: id ของหัวเรื่องที่รับ focus เมื่อเข้าหน้า (ไม่มี = h1 ของส่วนหัวแอป)
   var ROUTES = {
     overview: { hash: '#/', title: 'ภาพรวม' },
     tx: { hash: '#/tx', title: 'รายการ' },
-    tasks: { hash: '#/tasks', title: 'กิจวัตร' }
+    tasks: { hash: '#/tasks', title: 'กิจวัตร' },
+    welcome: { hash: '#/welcome', title: 'Dash', focus: 'welcome-title' }
   };
-  var PATHS = { '': 'overview', 'tx': 'tx', 'tasks': 'tasks' };
+  var PATHS = { '': 'overview', 'tx': 'tx', 'tasks': 'tasks', 'welcome': 'welcome' };
   var BOOT_MS = 900;
 
   var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -38,6 +42,8 @@
     opts = opts || {};
     var changed = name !== current;
     current = name;
+    // CSS ใช้ body[data-route] (เช่น หน้าแรกซ่อน rail/ส่วนหัว)
+    document.body.setAttribute('data-route', name);
 
     els.pages.forEach(function (sec) {
       var on = sec.getAttribute('data-page') === name;
@@ -79,9 +85,26 @@
     closeAll();
     render(name, { animate: true });
     try { window.scrollTo(0, 0); } catch (e) {}
-    if (els.title) {
-      try { els.title.focus({ preventScroll: true }); } catch (e) { els.title.focus(); }
+    var target = focusTarget(name);
+    if (target) {
+      try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
     }
+  }
+
+  // หัวเรื่องที่รับ focus หลังเปลี่ยนหน้า (หน้าแรกซ่อนส่วนหัวแอป จึงใช้ h1 ของหน้าเอง)
+  function focusTarget(name) {
+    var id = ROUTES[name] && ROUTES[name].focus;
+    var node = id ? document.getElementById(id) : null;
+    return node || els.title;
+  }
+
+  // เข้าเว็บครั้งแรก: ไม่มี hash เลยและยังไม่เคยกด "เริ่มใช้งาน" → หน้าแรก (ลิงก์ตรง #/… ไม่ถูกเปลี่ยน)
+  function firstVisit() {
+    var h = location.hash;
+    if (h !== '' && h !== '#') return false;
+    var welcomed = false;
+    try { welcomed = FM.get('welcomed', false) === true; } catch (e) { welcomed = false; }
+    return !welcomed;
   }
 
   function endBoot() {
@@ -213,6 +236,10 @@
     var p = parse(location.hash);
     if (p.isRoute && !p.known) {
       try { history.replaceState(history.state, '', ROUTES.overview.hash); } catch (e) {}
+    } else if (firstVisit()) {
+      // replace (ไม่ push) ปุ่มย้อนกลับจึงไม่วนกลับมาหน้านี้
+      try { history.replaceState(history.state, '', ROUTES.welcome.hash); } catch (e) {}
+      p = { name: 'welcome', known: true, isRoute: true };
     }
     render(p.name, { animate: false }); // โหลดครั้งแรก: ไม่ย้าย focus ไม่เล่น transition
     window.addEventListener('hashchange', onHashChange);
